@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Slide PRO</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #FFFFFF;
+            --color-secondary: #E0E0E0;
+            --color-background-dark: #0A0A0A;
+            --color-background-light: #F0F0F0;
+            --color-text-dark: #000000;
+            --color-text-light: #FFFFFF;
+        }
+
+        body.theme-dark {
+            background-color: var(--color-background-dark);
+            color: var(--color-text-light);
+            transition: background-color 0.5s ease;
+        }
+        body.theme-light {
+            background-color: var(--color-background-light);
+            color: var(--color-text-dark);
+            transition: background-color 0.5s ease;
+        }
+        
+        body { font-family: 'Source Sans Pro', sans-serif; }
+        h1, h2, h3, .font-elegant { font-family: 'Playfair Display', serif; }
+        .glass-panel {
+            background-color: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .theme-light .glass-panel {
+            background-color: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn-primary { background-color: var(--color-text-light); color: var(--color-text-dark); }
+        .btn-secondary { background-color: transparent; border: 1px solid var(--color-text-light); color: var(--color-text-light); }
+        .theme-light .btn-primary { background-color: var(--color-text-dark); color: var(--color-text-light); }
+        .theme-light .btn-secondary { border-color: var(--color-text-dark); color: var(--color-text-dark); }
+
+        .slide-container {
+            width: 100%;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .slide-container:hover {
+            transform: scale(1.02);
+        }
+        .slide-container.selected {
+            border: 2px solid #5a5a5a;
+        }
+        .slide-container .editable {
+            outline: none;
+            transition: color 0.3s ease;
+        }
+        .slide-container .editable:focus {
+            outline: 2px solid #a3a3a3;
+        }
+        .theme-light .slide-container.selected { border-color: #a3a3a3; }
+        .theme-light .slide-container .editable:focus { outline-color: #5a5a5a; }
+
+        .navigation-link { transition: color 0.3s ease; }
+        .navigation-link:hover { color: #A3A3A3; }
+        .theme-light .navigation-link:hover { color: #5a5a5a; }
+
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+        .controls-hidden { opacity: 0; pointer-events: none; transition: opacity 0.5s ease-out; }
+
+        /* Fullscreen Presentation Mode */
+        #fullscreen-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-background-dark);
+            z-index: 1000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .fullscreen-slide {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            text-align: center;
+            transition: transform 0.5s ease-in-out;
+            transform-origin: center center;
+            overflow-y: auto;
+            color: var(--color-text-light); /* Default for dark mode */
+        }
+        .theme-light .fullscreen-slide {
+            color: var(--color-text-dark);
+            background-color: var(--color-background-light);
+        }
+
+        .fullscreen-slide.with-bg {
+            background-size: cover;
+            background-position: center;
+            color: white; /* Ensure text is readable on images */
+        }
+        .fullscreen-controls {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none; /* Allow interaction with slide content */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .fullscreen-controls.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .fullscreen-controls button {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            padding: 1rem;
+            margin: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            pointer-events: auto; /* Re-enable for buttons */
+        }
+        .fullscreen-controls button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        #slideCounter {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body class="theme-dark min-h-screen flex flex-col">
+
+    <header class="fixed w-full z-20 py-6">
+        <div class="container mx-auto px-4 flex justify-between items-center">
+            <a href="#" class="text-3xl font-elegant font-bold">AI Slide PRO</a>
+            <nav class="flex space-x-6">
+                <button id="navLogin" class="navigation-link">Entrar</button>
+                <button id="navGenerate" class="navigation-link">Gerar</button>
+                <button id="navDashboard" class="navigation-link">Dashboard</button>
+                <button id="themeToggleBtn" class="navigation-link">Modo Claro</button>
+                <button id="presentationModeBtn" class="navigation-link hidden">Apresentar</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center pt-28 pb-12">
+        <div id="main-content" class="container mx-auto px-4 max-w-6xl w-full">
+            
+            <section id="login-panel" class="main-panel">
+                <div class="glass-panel p-12 rounded-lg max-w-lg mx-auto">
+                    <h2 class="text-4xl font-elegant mb-8 text-center">Acesse sua Conta</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="emailInput" class="block mb-2 text-sm font-semibold">E-mail</label>
+                            <input type="email" id="emailInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="seu-email@exemplo.com">
+                        </div>
+                        <div>
+                            <label for="passwordInput" class="block mb-2 text-sm font-semibold">Senha</label>
+                            <input type="password" id="passwordInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="Sua senha">
+                        </div>
+                    </div>
+                    <div class="flex justify-center space-x-4 mt-8">
+                        <button id="loginBtn" class="btn btn-primary">Entrar</button>
+                        <button id="signupBtn" class="btn btn-secondary">Cadastrar</button>
+                    </div>
+                    <div id="authStatus" class="mt-6 text-center text-red-400"></div>
+                </div>
+            </section>
+
+            <section id="generation-panel" class="main-panel hidden">
+                <div class="glass-panel p-12 rounded-lg max-w-2xl mx-auto text-center">
+                    <h2 class="text-4xl font-elegant mb-8">Gere com IA</h2>
+                    <div class="mb-6">
+                        <textarea id="promptInput" class="w-full h-32 p-4 bg-transparent border border-gray-500 rounded-lg focus:outline-none focus:border-white transition-colors" placeholder="Ex: 'Os benefícios da meditação', 'Introdução à Inteligência Artificial'"></textarea>
+                    </div>
+                    <button id="generateBtn" class="btn btn-primary w-full max-w-xs mx-auto">Gerar Slides</button>
+                    <div id="statusMessage" class="flex items-center justify-center mt-4 text-sm text-gray-400">
+                        <svg id="loadingIcon" class="hidden animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="statusText"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section id="user-dashboard" class="main-panel hidden">
+                <div class="glass-panel p-12 rounded-lg text-center">
+                    <h2 class="text-4xl font-elegant mb-4">Meus Projetos</h2>
+                    <p id="usernameDisplay" class="text-lg mb-8 text-gray-400"></p>
+                    <div id="projects-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <p class="text-gray-500 col-span-full">Nenhum projeto salvo ainda.</p>
+                    </div>
+                    <div class="flex justify-center space-x-4 mt-8">
+                        <button id="createProjectBtn" class="btn btn-primary">Novo Projeto</button>
+                        <button id="uploadProjectBtn" class="btn btn-secondary">Upload</button>
+                        <input type="file" id="uploadInput" accept=".json" class="hidden">
+                        <button id="logoutBtn" class="btn btn-secondary">Sair</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="editor-area" class="main-panel hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="col-span-1 md:col-span-2 lg:col-span-3 glass-panel p-6 rounded-lg flex flex-wrap items-center justify-center space-x-4 mb-8">
+                        <select id="fontSelect" class="bg-transparent border border-gray-500 rounded-full p-2 text-white">
+                            <option value="PlayfairDisplay">Playfair Display</option>
+                            <option value="SourceSansPro">Source Sans Pro</option>
+                        </select>
+                        <button id="addSlideBtn" class="btn btn-secondary">Novo Slide</button>
+                        <button id="deleteSlideBtn" class="btn btn-secondary">Excluir Slide</button>
+                        <button id="addImageBtn" class="btn btn-secondary">Adicionar Imagem</button>
+                        <button id="saveProjectBtn" class="btn btn-primary">Salvar Projeto</button>
+                    </div>
+                    <div id="slides-grid" class="col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="text-center py-4 text-gray-500 text-sm">
+        <p>&copy; 2023 AI Slide PRO. Todos os direitos reservados.</p>
+    </footer>
+
+    <div id="imageModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50">
+        <div class="glass-panel p-8 rounded-lg max-w-2xl w-full text-white modal-content">
+            <h3 class="text-3xl font-elegant mb-4 text-center">Adicionar Imagem</h3>
+            <div class="flex space-x-2 mb-4">
+                <input type="text" id="imageSearchInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="Buscar imagens...">
+                <button id="searchImageBtn" class="btn btn-primary">Buscar</button>
+            </div>
+            <div id="imageResults" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-60 overflow-y-auto mt-4"></div>
+            <div class="flex justify-end mt-6">
+                <button id="closeImageModalBtn" class="btn btn-secondary">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    
+<div id="fullscreen-view" class="hidden">
+        <div id="slides-carousel" class="relative w-full h-full flex items-center justify-center overflow-hidden"></div>
+        <div class="fullscreen-controls hidden">
+            <button id="prevBtn" class="prev-next-btn">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <button id="nextBtn" class="prev-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            </button>
+            <button id="exitFullscreenBtn" class="absolute top-4 right-4">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <span id="slideCounter"></span>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_KEY_GEMINI = "AIzaSyDfnepNXRHT2CDUgg9n3v6ej5IV2O3ohiI"; 
+            const API_KEY_PEXELS = "qBVmIu4GKw8cv85GznG0UuKzZLc9CDxmGRnOJTm3H1M8OQPR0rrC9fDl"; 
+
+            const navLogin = document.getElementById('navLogin');
+            const navGenerate = document.getElementById('navGenerate');
+            const navDashboard = document.getElementById('navDashboard');
+            const loginPanel = document.getElementById('login-panel');
+            const generationPanel = document.getElementById('generation-panel');
+            const userDashboard = document.getElementById('user-dashboard');
+            const editorArea = document.getElementById('editor-area');
+
+            const promptInput = document.getElementById('promptInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const statusMessage = document.getElementById('statusMessage');
+            const loadingIcon = document.getElementById('loadingIcon');
+            const statusText = document.getElementById('statusText');
+            const slidesGrid = document.getElementById('slides-grid');
+            
+            const emailInput = document.getElementById('emailInput');
+            const passwordInput = document.getElementById('passwordInput');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const authStatus = document.getElementById('authStatus');
+            const createProjectBtn = document.getElementById('createProjectBtn');
+            const saveProjectBtn = document.getElementById('saveProjectBtn');
+            const uploadProjectBtn = document.getElementById('uploadProjectBtn');
+            const uploadInput = document.getElementById('uploadInput');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+
+            const addSlideBtn = document.getElementById('addSlideBtn');
+            const deleteSlideBtn = document.getElementById('deleteSlideBtn');
+            const addImageBtn = document.getElementById('addImageBtn');
+            const imageModal = document.getElementById('imageModal');
+            const closeImageModalBtn = document.getElementById('closeImageModalBtn');
+            const imageSearchInput = document.getElementById('imageSearchInput');
+            const searchImageBtn = document.getElementById('searchImageBtn');
+            const imageResults = document.getElementById('imageResults');
+            
+            const fontSelect = document.getElementById('fontSelect');
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+
+            // Fullscreen Presentation Mode elements
+            const presentationModeBtn = document.getElementById('presentationModeBtn');
+            const fullscreenView = document.getElementById('fullscreen-view');
+            const slidesCarousel = document.getElementById('slides-carousel');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
+            const slideCounter = document.getElementById('slideCounter');
+            const fullscreenControls = document.querySelector('.fullscreen-controls');
+
+            let presentation = {
+                slides: [],
+                activeSlideIndex: -1,
+            };
+            let currentUser = null;
+            let userProjects = [];
+            let controlsTimeout;
+
+            const showPanel = (panelId) => {
+                const panels = [loginPanel, generationPanel, userDashboard, editorArea];
+                panels.forEach(panel => panel.classList.add('hidden'));
+                const targetPanel = document.getElementById(panelId);
+                if (targetPanel) {
+                    targetPanel.classList.remove('hidden');
+                }
+                // Show/hide presentation button based on editor area visibility
+                presentationModeBtn.classList.toggle('hidden', panelId !== 'editor-area' || presentation.slides.length === 0);
+            };
+            
+            navLogin.addEventListener('click', () => {
+                showPanel('login-panel');
+            });
+            navGenerate.addEventListener('click', () => {
+                showPanel('generation-panel');
+            });
+            navDashboard.addEventListener('click', () => {
+                if (currentUser) {
+                    showPanel('user-dashboard');
+                    renderProjectsList();
+                } else {
+                    alert("Por favor, faça login para acessar o Dashboard.");
+                    showPanel('login-panel');
+                }
+            });
+
+            const renderSlidesGrid = () => {
+                slidesGrid.innerHTML = '';
+                presentation.slides.forEach((slide, index) => {
+                    const slideElement = document.createElement('div');
+                    slideElement.dataset.index = index; 
+                    
+                    const isSelected = index === presentation.activeSlideIndex;
+                    const themeClass = document.body.classList.contains('theme-light') ? 'bg-white text-gray-800' : 'bg-transparent text-white';
+                    
+                    slideElement.className = `slide-container ${themeClass} ${isSelected ? 'selected' : ''}`;
+                    
+                    if (slide.backgroundImage) {
+                        slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
+                        slideElement.style.backgroundSize = 'cover';
+                        slideElement.style.backgroundPosition = 'center';
+                        slideElement.style.color = 'white'; 
+                    } else {
+                        slideElement.style.backgroundImage = 'none';
+                        slideElement.style.backgroundColor = document.body.classList.contains('theme-light') ? 'var(--color-background-light)' : 'var(--color-background-dark)';
+                        slideElement.style.color = document.body.classList.contains('theme-light') ? 'var(--color-text-dark)' : 'var(--color-text-light)';
+                    }
+
+                    const titleClass = `text-2xl font-elegant font-bold mb-4 editable`;
+                    const bodyClass = `text-sm leading-relaxed whitespace-pre-wrap editable`;
+
+                    slideElement.innerHTML = `
+                        <h2 contenteditable="true" class="${titleClass}">${slide.title}</h2>
+                        <p contenteditable="true" class="${bodyClass}">${slide.body}</p>
+                    `;
+                    
+                    const editableElements = slideElement.querySelectorAll('[contenteditable="true"]');
+                    editableElements.forEach(el => {
+                        el.addEventListener('input', () => {
+                            const newText = el.innerHTML;
+                            if (el.tagName === 'H2') {
+                                presentation.slides[index].title = newText;
+                            } else if (el.tagName === 'P') {
+                                presentation.slides[index].body = newText;
+                            }
+                        });
+                    });
+
+                    slidesGrid.appendChild(slideElement);
+                });
+                presentationModeBtn.classList.toggle('hidden', presentation.slides.length === 0);
+            };
+
+            const generateSlides = async () => {
+                const prompt = promptInput.value.trim();
+                if (!prompt) {
+                    statusText.textContent = "Por favor, digite um tópico para gerar os slides.";
+                    return;
+                }
+                showPanel('editor-area');
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Gerando...';
+                loadingIcon.classList.remove('hidden');
+                statusText.textContent = 'Aguarde, a IA está trabalhando...';
+                
+                presentation.slides = [];
+
+                try {
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY_GEMINI}`;
+                    const textPayload = {
+                        contents: [{
+                            parts: [
+                                { text: `Crie um conteúdo de slides detalhado e bem estruturado sobre o seguinte tópico: "${prompt}". Para cada slide, forneça um título claro e um corpo de texto. Adicione uma sugestão de imagem (em inglês) para cada slide. Separe cada slide com duas quebras de linha. Responda apenas com o texto, sem formatação extra como asteriscos ou cabeçalhos.
+                                    Exemplo de resposta:
+                                    Slide 1: Introdução ao Tópico
+                                    Ponto 1
+                                    Ponto 2
+                                    Sugestão de imagem: image of a computer
+                                    
+                                    Slide 2: Título do Slide
+                                    Ponto 1
+                                    Ponto 2
+                                    Sugestão de imagem: image of a sunset` }
+                            ]
+                        }]
+                    };
+                    const textResponse = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(textPayload)
+                    });
+                    if (!textResponse.ok) {
+                        throw new Error(`Erro ao gerar o texto dos slides.`);
+                    }
+                    const textResult = await textResponse.json();
+                    const responseText = textResult.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!responseText) {
+                        statusText.textContent = 'A API não retornou conteúdo de texto. Tente um tópico diferente.';
+                        return;
+                    }
+
+                    const slideContents = responseText.replace(/\*/g, '').trim().split('\n\n').filter(p => p.trim() !== '');
+                    if (slideContents.length === 0) {
+                        statusText.textContent = 'Nenhum slide foi gerado. Tente um tópico diferente.';
+                        return;
+                    }
+
+                    slideContents.forEach((content) => {
+                        const lines = content.split('\n');
+                        const title = lines[0].replace(/Slide \d+: /, '');
+                        const bodyLines = lines.slice(1).filter(line => !line.includes('Sugestão de imagem:'));
+                        const body = bodyLines.map(line => line.trim()).join('\n');
+                        const imageSuggestion = lines.find(line => line.includes('Sugestão de imagem:'))?.replace('Sugestão de imagem:', '').trim();
+
+                        presentation.slides.push({ title, body, backgroundImage: null, imageSuggestion });
+                    });
+                    
+                    statusText.textContent = 'Slides gerados com sucesso!';
+                    presentation.activeSlideIndex = 0;
+                    renderSlidesGrid();
+
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    statusText.textContent = `Erro: ${error.message}`;
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Gerar Slides';
+                    loadingIcon.classList.add('hidden');
+                }
+            };
+            
+            const addSlide = () => {
+                const newSlide = {
+                    title: 'Novo Slide',
+                    body: 'Clique para editar o texto...',
+                    backgroundImage: null,
+                    imageSuggestion: null,
+                };
+                presentation.slides.push(newSlide);
+                presentation.activeSlideIndex = presentation.slides.length - 1;
+                renderSlidesGrid();
+            };
+            
+            const deleteSlide = () => {
+                if (presentation.slides.length > 0 && presentation.activeSlideIndex > -1) {
+                    presentation.slides.splice(presentation.activeSlideIndex, 1);
+                    presentation.activeSlideIndex = Math.min(presentation.activeSlideIndex, presentation.slides.length - 1);
+                    renderSlidesGrid();
+                }
+            };
+
+            const searchImages = async (query) => {
+                if (!query) return;
+                const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=12`;
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': API_KEY_PEXELS }
+                    });
+                    const data = await response.json();
+                    imageResults.innerHTML = '';
+                    data.photos.forEach(photo => {
+                        const img = document.createElement('img');
+                        img.src = photo.src.medium;
+                        img.className = 'w-full h-24 object-cover rounded-md cursor-pointer hover:scale-105 transition-transform';
+                        img.addEventListener('click', () => {
+                            if (presentation.activeSlideIndex > -1) {
+                                presentation.slides[presentation.activeSlideIndex].backgroundImage = photo.src.original;
+                                imageModal.classList.remove('active');
+                                renderSlidesGrid();
+                            }
+                        });
+                        imageResults.appendChild(img);
+                    });
+                } catch (error) {
+                    console.error('Erro ao buscar imagens:', error);
+                    alert('Falha ao buscar imagens. Tente novamente.');
+                }
+            };
+
+            const saveProject = () => {
+                if (!currentUser) {
+                    alert("Por favor, faça login para salvar o projeto.");
+                    return;
+                }
+                if (presentation.slides.length === 0) {
+                    alert("Não há slides para salvar.");
+                    return;
+                }
+                
+                const projectName = prompt("Digite um nome para o seu projeto:");
+                if (!projectName) {
+                    alert("Nome do projeto é obrigatório.");
+                    return;
+                }
+
+                const newProject = {
+                    id: Date.now(),
+                    name: projectName,
+                    slides: presentation.slides,
+                    createdAt: new Date().toISOString()
+                };
+
+                userProjects.push(newProject);
+                localStorage.setItem(`aiSlideProjects_${currentUser.email}`, JSON.stringify(userProjects));
+                alert(`Projeto "${projectName}" salvo com sucesso!`);
+                renderProjectsList();
+            };
+
+            const loadProjectsFromLocalStorage = (userEmail) => {
+                const savedProjects = localStorage.getItem(`aiSlideProjects_${userEmail}`);
+                userProjects = savedProjects ? JSON.parse(savedProjects) : [];
+            };
+
+            const renderProjectsList = () => {
+                const projectsList = document.getElementById('projects-list');
+                projectsList.innerHTML = '';
+                if (userProjects.length === 0) {
+                    projectsList.innerHTML = `<p class="text-gray-500 col-span-full">Nenhum projeto salvo ainda.</p>`;
+                } else {
+                    userProjects.forEach(project => {
+                        const projectCard = document.createElement('div');
+                        projectCard.className = 'glass-panel p-6 rounded-lg text-left cursor-pointer transition-transform hover:scale-105 relative';
+                        projectCard.innerHTML = `
+                            <h3 class="text-xl font-elegant mb-2">${project.name}</h3>
+                            <p class="text-gray-400 text-sm">${project.slides.length} slides</p>
+                            <div class="flex space-x-2 mt-4">
+                                <button class="btn btn-secondary text-xs px-4 py-2 download-btn" data-project-id="${project.id}">Baixar</button>
+                            </div>
+                        `;
+                        projectCard.addEventListener('click', (e) => {
+                            if (!e.target.classList.contains('download-btn')) {
+                                presentation.slides = project.slides;
+                                presentation.activeSlideIndex = 0;
+                                renderSlidesGrid();
+                                showPanel('editor-area');
+                            }
+                        });
+                        projectsList.appendChild(projectCard);
+                    });
+                }
+            };
+            
+            // New download function
+            const downloadProjectAsJson = (project) => {
+                const dataStr = JSON.stringify(project, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `${project.name.replace(/[^a-z0-9]/gi, '_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('aiSlideCurrentUser');
+                currentUser = null;
+                presentation = { slides: [], activeSlideIndex: -1 };
+                userProjects = [];
+                showPanel('login-panel');
+            };
+
+            loginBtn.addEventListener('click', () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                const registeredUser = localStorage.getItem('registeredUser');
+
+                if (registeredUser) {
+                    const user = JSON.parse(registeredUser);
+                    if (user.email === email && user.password === password) {
+                        currentUser = { email: email };
+                        localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
+                        loadProjectsFromLocalStorage(currentUser.email);
+                        authStatus.textContent = '';
+                        showPanel('user-dashboard');
+                        usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.email}!`;
+                    } else {
+                        authStatus.textContent = 'E-mail ou senha incorretos.';
+                    }
+                } else {
+                    authStatus.textContent = 'Nenhum usuário cadastrado. Cadastre-se primeiro.';
+                }
+            });
+
+            signupBtn.addEventListener('click', () => {
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                const newUser = { email: email, password: password };
+                localStorage.setItem('registeredUser', JSON.stringify(newUser));
+                authStatus.textContent = 'Cadastro realizado com sucesso! Agora você pode entrar.';
+            });
+
+            logoutBtn.addEventListener('click', handleLogout);
+            createProjectBtn.addEventListener('click', () => showPanel('generation-panel'));
+            uploadProjectBtn.addEventListener('click', () => uploadInput.click());
+
+            uploadInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const project = JSON.parse(e.target.result);
+                        if (project && project.slides) {
+                            presentation.slides = project.slides;
+                            presentation.activeSlideIndex = 0;
+                            renderSlidesGrid();
+                            showPanel('editor-area');
+                            alert('Projeto carregado com sucesso!');
+                        } else {
+                            alert('Arquivo inválido. Certifique-se de carregar um arquivo de projeto JSON válido.');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao ler ou analisar o arquivo JSON:', error);
+                        alert('Erro ao carregar o arquivo. O arquivo pode estar corrompido ou não é um JSON válido.');
+                    }
+                };
+                reader.readAsText(file);
+            });
+            
+            document.addEventListener('click', (e) => {
+                const slideElement = e.target.closest('.slide-container');
+                if (slideElement) {
+                    const index = parseInt(slideElement.dataset.index);
+                    presentation.activeSlideIndex = index;
+                    renderSlidesGrid();
+                }
+                const downloadBtn = e.target.closest('.download-btn');
+                if (downloadBtn) {
+                    const projectId = parseInt(downloadBtn.dataset.projectId);
+                    const project = userProjects.find(p => p.id === projectId);
+                    if (project) {
+                        downloadProjectAsJson(project);
+                    }
+                }
+            });
+
+            generateBtn.addEventListener('click', generateSlides);
+            addSlideBtn.addEventListener('click', addSlide);
+            deleteSlideBtn.addEventListener('click', deleteSlide);
+            saveProjectBtn.addEventListener('click', saveProject);
+            
+            addImageBtn.addEventListener('click', () => {
+                if (presentation.activeSlideIndex === -1) {
+                    alert("Selecione um slide para adicionar a imagem.");
+                    return;
+                }
+                imageModal.classList.add('active');
+                const activeSlide = presentation.slides[presentation.activeSlideIndex];
+                if (activeSlide && activeSlide.imageSuggestion) {
+                    imageSearchInput.value = activeSlide.imageSuggestion;
+                    searchImages(activeSlide.imageSuggestion);
+                }
+            });
+            closeImageModalBtn.addEventListener('click', () => imageModal.classList.remove('active'));
+            imageSearchInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') {
+                    searchImages(imageSearchInput.value);
+                }
+            });
+            searchImageBtn.addEventListener('click', () => searchImages(imageSearchInput.value));
+
+            themeToggleBtn.addEventListener('click', () => {
+                document.body.classList.toggle('theme-light');
+                document.body.classList.toggle('theme-dark');
+                const themeText = document.body.classList.contains('theme-dark') ? 'Modo Claro' : 'Modo Escuro';
+                themeToggleBtn.textContent = themeText;
+                localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light');
+                renderSlidesGrid(); // Re-render to apply theme to slides
+            });
+            
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'theme-light') {
+                document.body.classList.add('theme-light');
+                document.body.classList.remove('theme-dark');
+                themeToggleBtn.textContent = 'Modo Escuro';
+            } else {
+                document.body.classList.add('theme-dark');
+                document.body.classList.remove('theme-light');
+                themeToggleBtn.textContent = 'Modo Claro';
+            }
+            
+            const checkAuthState = () => {
+                const savedUser = localStorage.getItem('aiSlideCurrentUser');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    loadProjectsFromLocalStorage(currentUser.email);
+                    showPanel('user-dashboard');
+                    usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.email}!`;
+                } else {
+                    showPanel('login-panel');
+                }
+            };
+            checkAuthState();
+
+            // Fullscreen Presentation Mode Logic
+            const enterPresentationMode = () => {
+                if (presentation.slides.length === 0) {
+                    alert("Não há slides para apresentar.");
+                    return;
+                }
+
+                slidesCarousel.innerHTML = ''; // Clear existing slides
+                presentation.slides.forEach((slide, index) => {
+                    const slideElement = document.createElement('div');
+                    const themeClass = document.body.classList.contains('theme-light') ? 'theme-light' : 'theme-dark';
+                    slideElement.className = `fullscreen-slide ${themeClass}`;
+                    
+                    if (slide.backgroundImage) {
+                        slideElement.classList.add('with-bg');
+                        slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
+                    } else {
+                         // Set background color based on theme for slides without images
+                        slideElement.style.backgroundColor = document.body.classList.contains('theme-light') ? 'var(--color-background-light)' : 'var(--color-background-dark)';
+                        slideElement.style.color = document.body.classList.contains('theme-light') ? 'var(--color-text-dark)' : 'var(--color-text-light)';
+                    }
+
+
+                    const titleHTML = `<h2 class="text-5xl font-elegant font-bold mb-8">${slide.title}</h2>`;
+                    const bodyHTML = `<p class="text-2xl leading-relaxed whitespace-pre-wrap">${slide.body}</p>`;
+                    
+                    slideElement.innerHTML = titleHTML + bodyHTML;
+                    slideElement.style.display = 'none'; // Hide all initially
+                    slidesCarousel.appendChild(slideElement);
+                });
+                
+                fullscreenView.style.display = 'flex';
+                presentation.activeSlideIndex = 0;
+                showCurrentFullscreenSlide();
+                showFullscreenControls();
+                document.documentElement.requestFullscreen(); // Request fullscreen mode
+            };
+
+            const showCurrentFullscreenSlide = () => {
+                const slides = slidesCarousel.querySelectorAll('.fullscreen-slide');
+                slides.forEach((slide, index) => {
+                    slide.style.display = (index === presentation.activeSlideIndex) ? 'flex' : 'none';
+                });
+                slideCounter.textContent = `${presentation.activeSlideIndex + 1} / ${presentation.slides.length}`;
+            };
+
+            const handleSlideNavigation = (direction) => {
+                if (direction === 'next' && presentation.activeSlideIndex < presentation.slides.length - 1) {
+                    presentation.activeSlideIndex++;
+                } else if (direction === 'prev' && presentation.activeSlideIndex > 0) {
+                    presentation.activeSlideIndex--;
+                }
+                showCurrentFullscreenSlide();
+            };
+
+            const showFullscreenControls = () => {
+                clearTimeout(controlsTimeout);
+                fullscreenControls.classList.add('active');
+                controlsTimeout = setTimeout(() => {
+                    fullscreenControls.classList.remove('active');
+                }, 3000); // Hide after 3 seconds of inactivity
+            };
+
+            const exitPresentationMode = () => {
+                fullscreenView.style.display = 'none';
+                clearTimeout(controlsTimeout);
+                if (document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            };
+
+            presentationModeBtn.addEventListener('click', enterPresentationMode);
+            prevBtn.addEventListener('click', () => handleSlideNavigation('prev'));
+            nextBtn.addEventListener('click', () => handleSlideNavigation('next'));
+            exitFullscreenBtn.addEventListener('click', exitPresentationMode);
+
+            document.addEventListener('keydown', (e) => {
+                if (fullscreenView.style.display === 'flex') {
+                    if (e.key === 'ArrowRight') handleSlideNavigation('next');
+                    else if (e.key === 'ArrowLeft') handleSlideNavigation('prev');
+                    // New line to handle the 'Escape' key
+                    else if (e.key === 'Escape') exitPresentationMode();
+                }
+            });
+
+            fullscreenView.addEventListener('mousemove', showFullscreenControls);
+            fullscreenView.addEventListener('touchstart', showFullscreenControls);
+        });
+    </script>
+</body>
+</html>
