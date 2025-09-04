@@ -3,61 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Slide PRO</title>
+    <title>AI Slide PRO - Otimizado</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
-            --color-primary: #FFFFFF;
-            --color-secondary: #E0E0E0;
-            --color-background-dark: #0A0A0A;
-            --color-background-light: #F0F0F0;
-            --color-text-dark: #000000;
+            --color-primary-dark: #1e1b4b; /* Deep Purple */
+            --color-dark-gradient-mid: #2e1065;
+            --color-dark-gradient-end: #4c1d95;
+
+            --color-light-gradient-start: #d4eafc; /* Azul Claro e Suave */
+            --color-light-gradient-mid: #e1e9f7;  /* Cinza-azulado muito claro */
+            --color-light-gradient-end: #f5f6fa;   /* Branco Off-white */
+
+            --color-accent: #c084fc; /* Fixed Purple Accent */
             --color-text-light: #FFFFFF;
+            --color-text-dark: #1f2937;
         }
 
         body.theme-dark {
-            background-color: var(--color-background-dark);
             color: var(--color-text-light);
-            transition: background-color 0.5s ease;
+            background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-dark-gradient-mid) 50%, var(--color-dark-gradient-end) 100%);
         }
+
         body.theme-light {
-            background-color: var(--color-background-light);
             color: var(--color-text-dark);
-            transition: background-color 0.5s ease;
+            background: linear-gradient(135deg, var(--color-light-gradient-start) 0%, var(--color-light-gradient-mid) 50%, var(--color-light-gradient-end) 100%);
         }
         
-        body { font-family: 'Source Sans Pro', sans-serif; }
-        h1, h2, h3, .font-elegant { font-family: 'Playfair Display', serif; }
+        body { 
+            min-height: 100vh;
+        }
         .glass-panel {
-            background-color: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-in-out;
         }
         .theme-light .glass-panel {
-            background-color: rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
         .btn {
             padding: 0.75rem 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             border-radius: 9999px;
             transition: all 0.3s ease;
         }
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn-primary { background-color: var(--color-text-light); color: var(--color-text-dark); }
-        .btn-secondary { background-color: transparent; border: 1px solid var(--color-text-light); color: var(--color-text-light); }
-        .theme-light .btn-primary { background-color: var(--color-text-dark); color: var(--color-text-light); }
-        .theme-light .btn-secondary { border-color: var(--color-text-dark); color: var(--color-text-dark); }
+        .btn-primary { 
+            background-color: var(--color-accent);
+            color: var(--color-text-light);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 0 10px var(--color-accent);
+        }
+        .btn-secondary { 
+            background-color: transparent; 
+            border: 2px solid var(--color-accent);
+            color: var(--color-accent);
+        }
+        .theme-light .btn-secondary {
+            color: var(--color-accent);
+            border-color: var(--color-accent);
+        }
+        .theme-light .btn-primary { 
+            background-color: var(--color-accent);
+            color: var(--color-text-light);
+        }
 
         .slide-container {
             width: 100%;
@@ -69,22 +92,22 @@
             justify-content: center;
             transition: all 0.3s ease;
             position: relative;
-        }
-        .slide-container:hover {
-            transform: scale(1.02);
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
         .slide-container.selected {
-            border: 2px solid #5a5a5a;
+            border: 2px solid var(--color-accent);
         }
         .slide-container .editable {
             outline: none;
             transition: color 0.3s ease;
         }
         .slide-container .editable:focus {
-            outline: 2px solid #a3a3a3;
+            outline: 2px solid var(--color-accent);
         }
-        .theme-light .slide-container.selected { border-color: #a3a3a3; }
-        .theme-light .slide-container .editable:focus { outline-color: #5a5a5a; }
+        .theme-light .slide-container .editable:focus { outline-color: var(--color-accent); }
 
         .navigation-link { transition: color 0.3s ease; }
         .navigation-link:hover { color: #A3A3A3; }
@@ -136,17 +159,15 @@
             transition: transform 0.5s ease-in-out;
             transform-origin: center center;
             overflow-y: auto;
-            color: var(--color-text-light); /* Default for dark mode */
+            color: var(--color-text-light);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
-        .theme-light .fullscreen-slide {
-            color: var(--color-text-dark);
-            background-color: var(--color-background-light);
-        }
-
+        .theme-light .fullscreen-slide { color: var(--color-text-dark); text-shadow: none; }
         .fullscreen-slide.with-bg {
             background-size: cover;
             background-position: center;
-            color: white; /* Ensure text is readable on images */
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
         }
         .fullscreen-controls {
             position: absolute;
@@ -155,7 +176,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            pointer-events: none; /* Allow interaction with slide content */
+            pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -171,7 +192,7 @@
             margin: 1rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            pointer-events: auto; /* Re-enable for buttons */
+            pointer-events: auto;
         }
         .fullscreen-controls button:hover {
             background-color: rgba(0, 0, 0, 0.8);
@@ -188,20 +209,27 @@
             font-size: 0.9rem;
             pointer-events: auto;
         }
+        
     </style>
 </head>
 <body class="theme-dark min-h-screen flex flex-col">
 
     <header class="fixed w-full z-20 py-6">
         <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="#" class="text-3xl font-elegant font-bold">AI Slide PRO</a>
-            <nav class="flex space-x-6">
-                <button id="navLogin" class="navigation-link">Entrar</button>
-                <button id="navGenerate" class="navigation-link">Gerar</button>
-                <button id="navDashboard" class="navigation-link">Dashboard</button>
-                <button id="themeToggleBtn" class="navigation-link">Modo Claro</button>
-                <button id="presentationModeBtn" class="navigation-link hidden">Apresentar</button>
-            </nav>
+            <a href="#" class="text-3xl font-bold">AI Slide PRO</a>
+            <div class="flex space-x-6 items-center">
+                <div class="flex flex-col items-end">
+                    <span id="clock" class="text-xl font-bold"></span>
+                    <span id="timeSpent" class="text-xs text-gray-400"></span>
+                </div>
+                <nav class="flex space-x-6">
+                    <button id="navLogin" class="navigation-link">Entrar</button>
+                    <button id="navGenerate" class="navigation-link">Gerar</button>
+                    <button id="navDashboard" class="navigation-link">Dashboard</button>
+                    <button id="themeToggleBtn" class="navigation-link">Modo Claro</button>
+                    <button id="presentationModeBtn" class="navigation-link hidden">Apresentar</button>
+                </nav>
+            </div>
         </div>
     </header>
 
@@ -210,20 +238,17 @@
             
             <section id="login-panel" class="main-panel">
                 <div class="glass-panel p-12 rounded-lg max-w-lg mx-auto">
-                    <h2 class="text-4xl font-elegant mb-8 text-center">Acesse sua Conta</h2>
-                    <div class="space-y-6">
+                    <h2 class="text-4xl font-bold mb-8 text-center">Acesse sua Conta</h2>
+                    <div class="space-y-6 flex flex-col items-center">
+                        <img id="profile-picture" src="https://via.placeholder.com/150" alt="Foto de Perfil" class="w-24 h-24 rounded-full mb-4 object-cover cursor-pointer">
+                        <input type="file" id="profilePicInput" accept="image/*" class="hidden">
                         <div>
-                            <label for="emailInput" class="block mb-2 text-sm font-semibold">E-mail</label>
-                            <input type="email" id="emailInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="seu-email@exemplo.com">
-                        </div>
-                        <div>
-                            <label for="passwordInput" class="block mb-2 text-sm font-semibold">Senha</label>
-                            <input type="password" id="passwordInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="Sua senha">
+                            <label for="nameInput" class="block mb-2 text-sm font-semibold text-center">Nome de Usuário</label>
+                            <input type="text" id="nameInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400 text-center" placeholder="Seu nome">
                         </div>
                     </div>
                     <div class="flex justify-center space-x-4 mt-8">
                         <button id="loginBtn" class="btn btn-primary">Entrar</button>
-                        <button id="signupBtn" class="btn btn-secondary">Cadastrar</button>
                     </div>
                     <div id="authStatus" class="mt-6 text-center text-red-400"></div>
                 </div>
@@ -231,7 +256,7 @@
 
             <section id="generation-panel" class="main-panel hidden">
                 <div class="glass-panel p-12 rounded-lg max-w-2xl mx-auto text-center">
-                    <h2 class="text-4xl font-elegant mb-8">Gere com IA</h2>
+                    <h2 class="text-4xl font-bold mb-8">Gere com IA</h2>
                     <div class="mb-6">
                         <textarea id="promptInput" class="w-full h-32 p-4 bg-transparent border border-gray-500 rounded-lg focus:outline-none focus:border-white transition-colors" placeholder="Ex: 'Os benefícios da meditação', 'Introdução à Inteligência Artificial'"></textarea>
                     </div>
@@ -248,7 +273,11 @@
 
             <section id="user-dashboard" class="main-panel hidden">
                 <div class="glass-panel p-12 rounded-lg text-center">
-                    <h2 class="text-4xl font-elegant mb-4">Meus Projetos</h2>
+                    <div class="flex flex-col items-center mb-6">
+                        <img id="dashboardProfilePic" src="https://via.placeholder.com/150" alt="Foto de Perfil do Usuário" class="w-32 h-32 rounded-full mb-4 object-cover">
+                        <button id="changeProfilePicBtn" class="btn btn-secondary text-sm px-4 py-2">Mudar Foto</button>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-4">Meus Projetos</h2>
                     <p id="usernameDisplay" class="text-lg mb-8 text-gray-400"></p>
                     <div id="projects-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <p class="text-gray-500 col-span-full">Nenhum projeto salvo ainda.</p>
@@ -265,11 +294,7 @@
             <section id="editor-area" class="main-panel hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div class="col-span-1 md:col-span-2 lg:col-span-3 glass-panel p-6 rounded-lg flex flex-wrap items-center justify-center space-x-4 mb-8">
-                        <select id="fontSelect" class="bg-transparent border border-gray-500 rounded-full p-2 text-white">
-                            <option value="PlayfairDisplay">Playfair Display</option>
-                            <option value="SourceSansPro">Source Sans Pro</option>
-                        </select>
-                        <button id="addSlideBtn" class="btn btn-secondary">Novo Slide</button>
+                         <button id="addSlideBtn" class="btn btn-secondary">Novo Slide</button>
                         <button id="deleteSlideBtn" class="btn btn-secondary">Excluir Slide</button>
                         <button id="addImageBtn" class="btn btn-secondary">Adicionar Imagem</button>
                         <button id="saveProjectBtn" class="btn btn-primary">Salvar Projeto</button>
@@ -287,7 +312,7 @@
 
     <div id="imageModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50">
         <div class="glass-panel p-8 rounded-lg max-w-2xl w-full text-white modal-content">
-            <h3 class="text-3xl font-elegant mb-4 text-center">Adicionar Imagem</h3>
+            <h3 class="text-3xl font-bold mb-4 text-center">Adicionar Imagem</h3>
             <div class="flex space-x-2 mb-4">
                 <input type="text" id="imageSearchInput" class="w-full p-3 bg-transparent border-b border-white focus:outline-none focus:border-gray-400" placeholder="Buscar imagens...">
                 <button id="searchImageBtn" class="btn btn-primary">Buscar</button>
@@ -335,10 +360,8 @@
             const statusText = document.getElementById('statusText');
             const slidesGrid = document.getElementById('slides-grid');
             
-            const emailInput = document.getElementById('emailInput');
-            const passwordInput = document.getElementById('passwordInput');
+            const nameInput = document.getElementById('nameInput');
             const loginBtn = document.getElementById('loginBtn');
-            const signupBtn = document.getElementById('signupBtn');
             const authStatus = document.getElementById('authStatus');
             const createProjectBtn = document.getElementById('createProjectBtn');
             const saveProjectBtn = document.getElementById('saveProjectBtn');
@@ -356,8 +379,9 @@
             const searchImageBtn = document.getElementById('searchImageBtn');
             const imageResults = document.getElementById('imageResults');
             
-            const fontSelect = document.getElementById('fontSelect');
             const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const clock = document.getElementById('clock');
+            const timeSpent = document.getElementById('timeSpent');
 
             // Fullscreen Presentation Mode elements
             const presentationModeBtn = document.getElementById('presentationModeBtn');
@@ -369,6 +393,12 @@
             const slideCounter = document.getElementById('slideCounter');
             const fullscreenControls = document.querySelector('.fullscreen-controls');
 
+            // Profile Picture elements
+            const profilePicture = document.getElementById('profile-picture');
+            const profilePicInput = document.getElementById('profilePicInput');
+            const dashboardProfilePic = document.getElementById('dashboardProfilePic');
+            const changeProfilePicBtn = document.getElementById('changeProfilePicBtn');
+
             let presentation = {
                 slides: [],
                 activeSlideIndex: -1,
@@ -376,6 +406,9 @@
             let currentUser = null;
             let userProjects = [];
             let controlsTimeout;
+            let totalTimeInSeconds = parseInt(localStorage.getItem('totalTimeInSeconds')) || 0;
+            let startTime = Date.now();
+            let timerInterval;
 
             const showPanel = (panelId) => {
                 const panels = [loginPanel, generationPanel, userDashboard, editorArea];
@@ -411,22 +444,20 @@
                     slideElement.dataset.index = index; 
                     
                     const isSelected = index === presentation.activeSlideIndex;
-                    const themeClass = document.body.classList.contains('theme-light') ? 'bg-white text-gray-800' : 'bg-transparent text-white';
+                    const themeClass = document.body.classList.contains('theme-light') ? 'text-gray-800' : 'text-white';
                     
                     slideElement.className = `slide-container ${themeClass} ${isSelected ? 'selected' : ''}`;
                     
                     if (slide.backgroundImage) {
                         slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
-                        slideElement.style.backgroundSize = 'cover';
-                        slideElement.style.backgroundPosition = 'center';
-                        slideElement.style.color = 'white'; 
                     } else {
-                        slideElement.style.backgroundImage = 'none';
-                        slideElement.style.backgroundColor = document.body.classList.contains('theme-light') ? 'var(--color-background-light)' : 'var(--color-background-dark)';
+                        const theme = document.body.classList.contains('theme-light') ? 'theme-light' : 'theme-dark';
+                        const backgroundStyle = window.getComputedStyle(document.body).background;
+                        slideElement.style.background = backgroundStyle;
                         slideElement.style.color = document.body.classList.contains('theme-light') ? 'var(--color-text-dark)' : 'var(--color-text-light)';
                     }
-
-                    const titleClass = `text-2xl font-elegant font-bold mb-4 editable`;
+                    
+                    const titleClass = `text-2xl font-bold mb-4 editable`;
                     const bodyClass = `text-sm leading-relaxed whitespace-pre-wrap editable`;
 
                     slideElement.innerHTML = `
@@ -601,13 +632,13 @@
                 };
 
                 userProjects.push(newProject);
-                localStorage.setItem(`aiSlideProjects_${currentUser.email}`, JSON.stringify(userProjects));
+                localStorage.setItem(`aiSlideProjects_${currentUser.name}`, JSON.stringify(userProjects));
                 alert(`Projeto "${projectName}" salvo com sucesso!`);
                 renderProjectsList();
             };
 
-            const loadProjectsFromLocalStorage = (userEmail) => {
-                const savedProjects = localStorage.getItem(`aiSlideProjects_${userEmail}`);
+            const loadProjectsFromLocalStorage = (userName) => {
+                const savedProjects = localStorage.getItem(`aiSlideProjects_${userName}`);
                 userProjects = savedProjects ? JSON.parse(savedProjects) : [];
             };
 
@@ -621,7 +652,7 @@
                         const projectCard = document.createElement('div');
                         projectCard.className = 'glass-panel p-6 rounded-lg text-left cursor-pointer transition-transform hover:scale-105 relative';
                         projectCard.innerHTML = `
-                            <h3 class="text-xl font-elegant mb-2">${project.name}</h3>
+                            <h3 class="text-xl font-bold mb-2">${project.name}</h3>
                             <p class="text-gray-400 text-sm">${project.slides.length} slides</p>
                             <div class="flex space-x-2 mt-4">
                                 <button class="btn btn-secondary text-xs px-4 py-2 download-btn" data-project-id="${project.id}">Baixar</button>
@@ -640,7 +671,6 @@
                 }
             };
             
-            // New download function
             const downloadProjectAsJson = (project) => {
                 const dataStr = JSON.stringify(project, null, 2);
                 const blob = new Blob([dataStr], { type: "application/json" });
@@ -663,34 +693,46 @@
             };
 
             loginBtn.addEventListener('click', () => {
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                const registeredUser = localStorage.getItem('registeredUser');
+                const name = nameInput.value;
+                if (!name) {
+                    authStatus.textContent = 'Por favor, digite seu nome.';
+                    return;
+                }
+                const profilePic = profilePicture.src;
+                currentUser = { name: name, profilePic: profilePic };
+                localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
+                loadProjectsFromLocalStorage(currentUser.name);
+                authStatus.textContent = '';
+                showPanel('user-dashboard');
+                usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.name}!`;
+                dashboardProfilePic.src = currentUser.profilePic;
+            });
 
-                if (registeredUser) {
-                    const user = JSON.parse(registeredUser);
-                    if (user.email === email && user.password === password) {
-                        currentUser = { email: email };
-                        localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
-                        loadProjectsFromLocalStorage(currentUser.email);
-                        authStatus.textContent = '';
-                        showPanel('user-dashboard');
-                        usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.email}!`;
-                    } else {
-                        authStatus.textContent = 'E-mail ou senha incorretos.';
-                    }
-                } else {
-                    authStatus.textContent = 'Nenhum usuário cadastrado. Cadastre-se primeiro.';
+            profilePicture.addEventListener('click', () => {
+                profilePicInput.click();
+            });
+
+            changeProfilePicBtn.addEventListener('click', () => {
+                profilePicInput.click();
+            });
+            
+            profilePicInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageUrl = e.target.result;
+                        profilePicture.src = imageUrl;
+                        if (currentUser) {
+                            currentUser.profilePic = imageUrl;
+                            localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
+                            dashboardProfilePic.src = imageUrl;
+                        }
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
 
-            signupBtn.addEventListener('click', () => {
-                const email = emailInput.value;
-                const password = passwordInput.value;
-                const newUser = { email: email, password: password };
-                localStorage.setItem('registeredUser', JSON.stringify(newUser));
-                authStatus.textContent = 'Cadastro realizado com sucesso! Agora você pode entrar.';
-            });
 
             logoutBtn.addEventListener('click', handleLogout);
             createProjectBtn.addEventListener('click', () => showPanel('generation-panel'));
@@ -769,9 +811,9 @@
                 const themeText = document.body.classList.contains('theme-dark') ? 'Modo Claro' : 'Modo Escuro';
                 themeToggleBtn.textContent = themeText;
                 localStorage.setItem('theme', document.body.classList.contains('theme-dark') ? 'theme-dark' : 'theme-light');
-                renderSlidesGrid(); // Re-render to apply theme to slides
+                renderSlidesGrid();
             });
-            
+
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'theme-light') {
                 document.body.classList.add('theme-light');
@@ -782,19 +824,54 @@
                 document.body.classList.remove('theme-light');
                 themeToggleBtn.textContent = 'Modo Claro';
             }
-            
+
             const checkAuthState = () => {
                 const savedUser = localStorage.getItem('aiSlideCurrentUser');
                 if (savedUser) {
                     currentUser = JSON.parse(savedUser);
-                    loadProjectsFromLocalStorage(currentUser.email);
+                    loadProjectsFromLocalStorage(currentUser.name);
                     showPanel('user-dashboard');
-                    usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.email}!`;
+                    usernameDisplay.textContent = `Bem-vindo(a), ${currentUser.name}!`;
+                    profilePicture.src = currentUser.profilePic;
+                    dashboardProfilePic.src = currentUser.profilePic;
                 } else {
                     showPanel('login-panel');
                 }
             };
             checkAuthState();
+
+            const formatTime = (seconds) => {
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                const s = seconds % 60;
+                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            };
+
+            const updateClock = () => {
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                clock.textContent = `${hours}:${minutes}:${seconds}`;
+            };
+
+            const updateTimeSpent = () => {
+                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+                const currentTotal = totalTimeInSeconds + elapsedTime;
+                timeSpent.textContent = `Tempo total: ${formatTime(currentTotal)}`;
+            };
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            updateTimeSpent();
+            timerInterval = setInterval(updateTimeSpent, 1000);
+
+            window.addEventListener('beforeunload', () => {
+                const sessionTime = Math.floor((Date.now() - startTime) / 1000);
+                totalTimeInSeconds += sessionTime;
+                localStorage.setItem('totalTimeInSeconds', totalTimeInSeconds);
+            });
 
             // Fullscreen Presentation Mode Logic
             const enterPresentationMode = () => {
@@ -803,7 +880,7 @@
                     return;
                 }
 
-                slidesCarousel.innerHTML = ''; // Clear existing slides
+                slidesCarousel.innerHTML = '';
                 presentation.slides.forEach((slide, index) => {
                     const slideElement = document.createElement('div');
                     const themeClass = document.body.classList.contains('theme-light') ? 'theme-light' : 'theme-dark';
@@ -813,17 +890,17 @@
                         slideElement.classList.add('with-bg');
                         slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
                     } else {
-                         // Set background color based on theme for slides without images
-                        slideElement.style.backgroundColor = document.body.classList.contains('theme-light') ? 'var(--color-background-light)' : 'var(--color-background-dark)';
+                        const backgroundStyle = window.getComputedStyle(document.body).background;
+                        slideElement.style.background = backgroundStyle;
                         slideElement.style.color = document.body.classList.contains('theme-light') ? 'var(--color-text-dark)' : 'var(--color-text-light)';
                     }
 
 
-                    const titleHTML = `<h2 class="text-5xl font-elegant font-bold mb-8">${slide.title}</h2>`;
+                    const titleHTML = `<h2 class="text-5xl font-bold mb-8">${slide.title}</h2>`;
                     const bodyHTML = `<p class="text-2xl leading-relaxed whitespace-pre-wrap">${slide.body}</p>`;
                     
                     slideElement.innerHTML = titleHTML + bodyHTML;
-                    slideElement.style.display = 'none'; // Hide all initially
+                    slideElement.style.display = 'none';
                     slidesCarousel.appendChild(slideElement);
                 });
                 
@@ -831,7 +908,7 @@
                 presentation.activeSlideIndex = 0;
                 showCurrentFullscreenSlide();
                 showFullscreenControls();
-                document.documentElement.requestFullscreen(); // Request fullscreen mode
+                document.documentElement.requestFullscreen();
             };
 
             const showCurrentFullscreenSlide = () => {
@@ -856,7 +933,7 @@
                 fullscreenControls.classList.add('active');
                 controlsTimeout = setTimeout(() => {
                     fullscreenControls.classList.remove('active');
-                }, 3000); // Hide after 3 seconds of inactivity
+                }, 3000);
             };
 
             const exitPresentationMode = () => {
@@ -876,7 +953,6 @@
                 if (fullscreenView.style.display === 'flex') {
                     if (e.key === 'ArrowRight') handleSlideNavigation('next');
                     else if (e.key === 'ArrowLeft') handleSlideNavigation('prev');
-                    // New line to handle the 'Escape' key
                     else if (e.key === 'Escape') exitPresentationMode();
                 }
             });
