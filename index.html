@@ -1,1520 +1,648 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Slide PRO 4.0</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Analisador e Editor de Imagem M&A AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-blue': '#4F46E5',
+                        'primary-purple': '#9333EA',
+                        'dark-bg': '#0c0a09',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --color-bg-start: #ff7e5f;
-            --color-bg-mid: #feb47b;
-            --color-bg-end: #ffcc9b;
-            --color-accent: #e55a40;
-            --color-text-dark: #2c3e50;
-            --color-text-light: #ffffff;
-            --color-primary-cta: #e99c12;
-            --color-glass-bg: rgba(255, 255, 255, 0.6);
-            --color-glass-border: rgba(255, 255, 255, 0.4);
-            --color-glass-shadow: rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes bg-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        body { 
-            min-height: 10vh;
-            color: var(--color-text-dark);
-            background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-mid), var(--color-bg-end));
-            background-size: 400% 400%;
-            animation: bg-animation 20s ease infinite;
-            font-family: 'Poppins', sans-serif;
-            transition: background-color 0.5s ease-in-out;
-        }
-
-        /* Beta Version Styles (Pro e Vogue) */
-        body.beta-version {
-            
-            --color-bg-mid: #415A77;
-            background-size: 400% 400%;
-            
-        }
-
-        body.beta-version .glass-panel {
-            background-color: var(--color-glass-bg);
-            border: 1px solid var(--color-glass-border);
-            box-shadow: 0 4px 30px var(--color-glass-shadow);
-        }
-        
-        body.beta-version .btn-primary, body.beta-version .btn-secondary {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--color-text-dark);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-            font-weight: 400;
-        }
-        
-        body.beta-version .btn-primary:hover, body.beta-version .btn-secondary:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .glass-panel {
-            background-color: var(--color-glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--color-glass-border);
-            box-shadow: 0 4px 30px var(--color-glass-shadow);
-            transition: transform 0.3s ease-in-out, background-color 0.5s ease;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            font-weight: 700;
-            border-radius: 9999px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-primary { 
-            background-color: var(--color-primary-cta);
-            color: var(--color-text-light);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .btn-primary:hover {
-            background-color: #e68a00;
-        }
-
-        .btn-secondary { 
-            background-color: transparent; 
-            border: 2px solid var(--color-accent);
-            color: var(--color-accent);
-        }
-        
-        .btn-secondary:hover {
-            background-color: var(--color-accent);
-            color: var(--color-text-light);
-        }
-
-        body.beta-version .navigation-link {
-            color: var(--color-text-dark);
-        }
-
-        body.beta-version .navigation-link:hover {
-            color: var(--color-accent);
-        }
-
-        .slide-container {
-            width: 100%;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            min-height: 250px;
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #0c0a09 100%);
+            min-height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .crystal-card {
+            background-color: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(79, 70, 229, 0.5);
             transition: all 0.3s ease;
+        }
+        .crystal-button {
+            background: linear-gradient(90deg, #6366f1, #9333ea);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease;
+        }
+        .crystal-button:hover {
+            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.7);
+            transform: translateY(-2px);
+        }
+        .input-file-label {
+            border: 2px dashed #4f46e5;
+            background-color: rgba(79, 70, 229, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .input-file-label:hover {
+            border-color: #9333ea;
+            background-color: rgba(147, 51, 234, 0.2);
+        }
+        #result-area {
+            min-height: 150px;
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #9333EA;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .citation {
+            font-size: 0.7rem;
+            color: #ccc;
+            margin-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            padding-top: 5px;
+        }
+        .citation a {
+            color: #6366f1;
+            text-decoration: underline;
+        }
+        .star-rating {
+            font-size: 1.2rem;
+            line-height: 1;
+            display: inline-block;
+        }
+        .star-rating .full-star {
+            color: #FBBF24;
+        }
+        .star-rating .empty-star {
+            color: #4B5563;
+        }
+
+        /* Container para a pré-visualização da imagem editada */
+        #edited-image-preview-container {
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 2/3;
+            margin: 20px auto 0;
             position: relative;
-            background-size: cover;
-            background-position: center;
-            background-color: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            color: var(--color-text-dark);
-        }
-
-        .slide-container.selected {
-            border: 2px solid var(--color-primary-cta);
-        }
-
-        .slide-container .editable {
-            outline: none;
-            transition: color 0.3s ease;
-        }
-
-        .slide-container .editable:focus {
-            outline: 2px solid var(--color-primary-cta);
-        }
-
-        .navigation-link { 
-            transition: color 0.3s ease; 
-            color: var(--color-text-dark);
-            font-weight: 600;
-        }
-
-        .navigation-link:hover { 
-            color: var(--color-primary-cta); 
-        }
-
-        .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .modal-content {
-            transform: translateY(-20px);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.active .modal-content {
-            transform: translateY(0);
-        }
-
-        .controls-hidden { opacity: 0; pointer-events: none; transition: opacity 0.5s ease-out; }
-
-        #fullscreen-view {
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden; 
+            background-color: #333; 
             display: none;
-            position: fixed;
+        }
+
+        #edited-image-bg {
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-mid), var(--color-bg-end));
-            background-size: 400% 400%;
-            animation: bg-animation 20s ease infinite;
-            z-index: 1000;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: none;
-        }
-        
-        .fullscreen-slide {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 4rem;
-            text-align: center;
-            transition: transform 0.5s ease-in-out;
-            transform-origin: center center;
-            overflow-y: auto;
-            color: var(--color-text-dark);
-        }
-        
-        .fullscreen-slide.with-bg {
             background-size: cover;
             background-position: center;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            filter: brightness(0.7) blur(2px); 
         }
         
-        .fullscreen-controls {
+        #edited-image-object {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .fullscreen-controls.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        
-        .fullscreen-controls button {
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border-radius: 50%;
-            padding: 1rem;
-            margin: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            pointer-events: auto;
-        }
-        
-        .fullscreen-controls button:hover {
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-        
-        #slideCounter {
-            position: absolute;
-            bottom: 1rem;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.9rem;
-            pointer-events: auto;
-        }
-
-        .progress-container {
-            width: 100%;
-            background-color: #f3f3f3;
-            border-radius: 50px;
-            overflow: hidden;
-            margin-top: 2rem;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        #progressBar {
-            height: 20px;
-            width: 0%;
-            background-color: #4CAF50;
-            text-align: center;
-            line-height: 20px;
-            color: white;
-            transition: width 0.5s ease;
-        }
-        
-        #laser-pointer {
-            position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: rgba(255, 0, 0, 0.8);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 1001;
-            box-shadow: 0 0 5px 2px rgba(255, 0, 0, 0.5);
-            transition: transform 0.05s ease;
             transform: translate(-50%, -50%);
-        }
-
-        /* New Chat styles */
-        #chat-container {
-            height: 60vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--color-glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--color-glass-border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 30px var(--color-glass-shadow);
-        }
-
-        #chat-messages {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 1rem;
-            padding-right: 0.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .user-message, .ai-message {
             max-width: 80%;
-            padding: 0.75rem;
-            border-radius: 1rem;
-            word-wrap: break-word;
+            max-height: 80%;
+            object-fit: contain;
+            z-index: 1;
         }
-        
-        .user-message {
-            background-color: rgba(255, 255, 255, 0.2);
-            align-self: flex-end;
-            text-align: right;
-            color: black;
-        }
-        
-        .ai-message {
-            background-color: rgba(0, 0, 0, 0.1);
-            align-self: flex-start;
-            text-align: left;
-            color: black;
-        }
-        
-        /* New styles for Virtual Assistant */
-        .btn-floating {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            width: 4rem;
-            height: 4rem;
-            border-radius: 50%;
-            background-color: var(--color-primary-cta);
+
+        #edited-image-text-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.6), transparent);
             color: white;
+            font-size: 0.9rem;
+            text-align: center;
+            backdrop-filter: blur(2px);
+            /* Aumentado o espaço para o texto */
+            min-height: 100px;
             display: flex;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-            z-index: 999;
-            transition: transform 0.3s ease;
+            z-index: 2;
         }
         
-        .btn-floating:hover {
-            transform: scale(1.1);
-        }
-        
-        .virtual-assistant-container {
-            position: fixed;
-            bottom: 6rem;
-            right: 1.5rem;
+        /* Nova classe para o conteúdo estruturado - garante que o texto não seja cortado */
+        #edited-image-text-content {
             width: 90%;
-            max-width: 400px;
-            height: 60vh;
-            background-color: var(--color-glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--color-glass-border);
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 4px 30px var(--color-glass-shadow);
-            z-index: 998;
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform: translateY(20px);
-            opacity: 0;
-            pointer-events: none;
+            padding: 5px;
+            white-space: normal; /* Permite que o texto quebre linhas */
+            overflow: visible; /* Garante que o conteúdo seja totalmente visível */
+            text-overflow: clip; /* Garante que não haja reticências */
         }
-        
-        .virtual-assistant-container.active {
-            transform: translateY(0);
-            opacity: 1;
-            pointer-events: auto;
+        .overlay-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+        .overlay-summary {
+            font-size: 0.85rem;
+            line-height: 1.3;
         }
     </style>
 </head>
-<body class="beta-version">
-    <header class="fixed w-full z-20 py-6">
-        <div class="container mx-auto px-4 flex justify-between items-center">
-            <a href="#" class="text-3xl font-bold">AI Slide <span class="text-[#007BFF]">PRO</span></a>
-            <div class="flex space-x-6 items-center">
-                <div class="flex flex-col items-end">
-                    <span id="clock" class="text-xl font-bold"></span>
-                    <span id="timeSpent" class="text-xs text-gray-600"></span>
-                </div>
-                <nav class="flex space-x-6">
-                    <button id="navLogin" class="navigation-link">Entrar</button>
-                    <button id="navGenerate" class="navigation-link">Gerar</button>
-                    <button id="navDashboard" class="navigation-link">Dashboard</button>
-                    <button id="navGeneral" class="navigation-link">Atualizações 4.0</button>
-                    <button id="navChat" class="navigation-link hidden">Chat GPT</button>
-                    <button id="presentationModeBtn" class="navigation-link hidden">Apresentar</button>
-                </nav>
-            </div>
-            <div id="language-switcher" class="flex items-center space-x-2 hidden">
-                <button id="lang-pt" class="btn btn-secondary text-sm">PT</button>
-                <button id="lang-en" class="btn btn-secondary text-sm">EN</button>
-            </div>
-        </div>
-    </header>
+<body onload="initAuth()">
 
-    <main class="flex-grow flex items-center justify-center pt-28 pb-12">
-        <div id="main-content" class="container mx-auto px-4 max-w-6xl w-full">
-            
-            <section id="login-panel" class="main-panel">
-                <div class="glass-panel p-12 rounded-lg max-w-lg mx-auto text-center">
-                    <h2 class="text-4xl font-bold mb-8" data-i18n="login-title">Liberte Sua Criatividade!</h2>
-                    <p class="mb-8" data-i18n="login-subtitle">Entre para criar, aprender e inspirar. Seu próximo grande projeto começa aqui.</p>
-                    <div class="space-y-6 flex flex-col items-center">
-                        <img id="profile-picture" src="https://via.placeholder.com/150" alt="Foto de Perfil" class="w-24 h-24 rounded-full mb-4 object-cover cursor-pointer">
-                        <input type="file" id="profilePicInput" accept="image/*" class="hidden">
-                        <div>
-                            <label for="nameInput" class="block mb-2 text-sm font-semibold text-center" data-i18n="login-name-label">Seu Nome</label>
-                            <input type="text" id="nameInput" class="w-full p-3 bg-transparent border-b border-gray-400 focus:outline-none focus:border-gray-600 text-center" placeholder="Seu nome">
-                        </div>
-                    </div>
-                    <div class="flex justify-center space-x-4 mt-8">
-                        <button id="loginBtn" class="btn btn-primary" data-i18n="login-btn">Entrar</button>
-                    </div>
-                    <div id="authStatus" class="mt-6 text-center text-red-600"></div>
-                </div>
-            </section>
+<div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm transition-opacity duration-300">
+    <div class="crystal-card p-6 sm:p-8 w-11/12 max-w-md rounded-2xl shadow-2xl text-center">
+        <h2 class="text-2xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">Acesso Restrito</h2>
+        <p class="text-gray-300 mb-6">Insira a senha de acesso para continuar a análise. A senha será lembrada nesta sessão.</p>
 
-            <section id="generation-panel" class="main-panel hidden">
-                <div class="glass-panel p-12 rounded-lg max-w-2xl mx-auto text-center">
-                    <h2 class="text-4xl font-bold mb-8" data-i18n="generate-title">Crie com a Inteligência Artificial!</h2>
-                    <div class="mb-6">
-                        <textarea id="promptInput" class="w-full h-32 p-4 bg-transparent border border-gray-400 rounded-lg focus:outline-none focus:border-gray-600 transition-colors" data-i18n="generate-placeholder"></textarea>
-                    </div>
-                    <button id="generateBtn" class="btn btn-primary w-full max-w-xs mx-auto" data-i18n="generate-btn">Gerar Slides</button>
-                    <div id="statusMessage" class="flex items-center justify-center mt-4 text-sm text-gray-500">
-                        <svg id="loadingIcon" class="hidden animate-spin h-5 w-5 mr-3 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span id="statusText" data-i18n="generate-status-text"></span>
-                    </div>
-                </div>
-            </section>
+        <input type="password" id="access-password" class="w-full p-3 mb-4 bg-black bg-opacity-30 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-primary-blue focus:border-primary-blue transition" placeholder="Senha de Acesso" onkeyup="if(event.key === 'Enter') checkPassword()">
+        
+        <p id="password-error" class="text-red-400 text-sm mb-4 hidden">Senha incorreta. Tente novamente.</p>
 
-            <section id="user-dashboard" class="main-panel hidden">
-                <div class="glass-panel p-12 rounded-lg text-center">
-                    <div class="flex flex-col items-center mb-6">
-                        <img id="dashboardProfilePic" src="https://via.placeholder.com/150" alt="Foto de Perfil do Usuário" class="w-32 h-32 rounded-full mb-4 object-cover">
-                        <button id="changeProfilePicBtn" class="btn btn-secondary text-sm px-4 py-2" data-i18n="dashboard-change-pic-btn">Mudar Foto</button>
-                    </div>
-                    <h2 class="text-4xl font-bold mb-4" data-i18n="dashboard-title">Meus Projetos </h2>
-                    <p id="usernameDisplay" class="text-lg mb-8 text-gray-500"></p>
-                    <div id="projects-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <p class="text-gray-500 col-span-full" data-i18n="dashboard-no-projects">Nenhum projeto salvo ainda.</p>
-                    </div>
-                    <div class="flex justify-center space-x-4 mt-8">
-                        <button id="createProjectBtn" class="btn btn-primary" data-i18n="dashboard-new-project-btn">Novo Projeto</button>
-                        <button id="uploadProjectBtn" class="btn btn-secondary" data-i18n="dashboard-upload-btn">Upload</button>
-                        <input type="file" id="uploadInput" accept=".json" class="hidden">
-                        <button id="logoutBtn" class="btn btn-secondary" data-i18n="dashboard-logout-btn">Sair</button>
-                    </div>
-                </div>
-            </section>
-            
-            <section id="editor-area" class="main-panel hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div class="col-span-1 md:col-span-2 lg:col-span-3 glass-panel p-6 rounded-lg flex flex-wrap items-center justify-center space-x-4 mb-8">
-                        <button id="addSlideBtn" class="btn btn-secondary" data-i18n="editor-new-slide-btn">Novo Slide</button>
-                        <button id="deleteSlideBtn" class="btn btn-secondary" data-i18n="editor-delete-slide-btn">Excluir Slide</button>
-                        <button id="addImageBtn" class="btn btn-secondary" data-i18n="editor-add-image-btn">Adicionar Imagem</button>
-                        <button id="saveProjectBtn" class="btn btn-primary" data-i18n="editor-save-btn">Salvar Projeto</button>
-                        <button id="exportPdfBtn" class="btn btn-secondary hidden" data-i18n="editor-export-pdf-btn">Exportar PDF</button>
-                        <button id="emailProjectBtn" class="btn btn-secondary hidden" data-i18n="editor-email-btn">Enviar por Email</button>
-                    </div>
-                    <div id="slides-grid" class="col-span-1 md:col-span-2 lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-                </div>
-            </section>
-            
-            <section id="chat-panel" class="main-panel hidden">
-                <div class="glass-panel p-12 rounded-lg max-w-2xl mx-auto text-center">
-                    <h2 class="text-4xl font-bold mb-8" data-i18n="chat-title">Chat M&A Pro Beta</h2>
-                    <div id="chat-container">
-                        <div id="chat-messages"></div>
-                        <div class="flex space-x-2 mt-4">
-                            <input type="text" id="chat-input" class="w-full p-3 rounded-lg bg-transparent border border-gray-400 focus:outline-none focus:border-gray-600" placeholder="Digite sua pergunta..." data-i18n="chat-placeholder">
-                            <button id="send-chat-btn" class="btn btn-primary" data-i18n="chat-send-btn">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <button id="access-button" class="crystal-button w-full py-3 rounded-xl text-lg font-bold uppercase mb-4" onclick="checkPassword()">
+            Acessar Analisador
+        </button>
 
-            <section id="general-panel" class="main-panel hidden">
-                <div class="glass-panel p-12 rounded-lg max-w-lg mx-auto text-center mt-12">
-                    <h2 class="text-2xl font-bold mb-4" data-i18n="general-title">Atualizações</h2>
-                    <p class="mb-4" data-i18n="general-version">Versão do Sistema: <span id="currentVersion">4.1 Beta</span></p>
-                    <div class="text-left mt-6">
-                        <p class="font-bold text-lg text-white mb-2">🎉 Uma Nova Experiência Chegou!</p>
-                        <p class="text-sm mb-4">Estamos orgulhosos de apresentar a **versão 4.0 Beta**, uma atualização focada em tornar a sua experiência de criação ainda mais fluida e agradável.</p>
-                        <p class="font-bold mt-4 text-white">✨ O Que Há de Novo?</p>
-                        <ul class="list-disc list-inside text-sm">
-                            <li><strong>Design Renovado:</strong> Uma interface completamente nova, com botões de efeito transparente e um fundo animado em tons de azul para uma navegação visualmente impressionante.</li>
-                            <li><strong>Chat M&A Pro Beta:</strong> Um novo assistente de IA integrado, mais rápido e preciso, pronto para responder às suas perguntas e ajudar na sua pesquisa em tempo real.</li>
-                            <li><strong>Otimização de Performance:</strong> Diversas melhorias internas para garantir um desempenho mais rápido e estável, desde a geração de slides até o modo de apresentação.</li>
-                        </ul>
-                    </div>
-                    <div id="updateStatus" class="mt-4 hidden">
-                        <p id="updateMessage" data-i18n="general-updating">Atualizando...</p>
-                        <div class="progress-container">
-                            <div id="progressBar"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <footer class="text-center py-4 text-gray-500 text-sm">
-        <p data-i18n="footer-copyright">&copy; 2025 AI Slide PRO 4.0. Todos os direitos reservados.</p>
-    </footer>
-
-    <div id="imageModal" class="modal-overlay fixed inset-0 flex items-center justify-center z-50">
-        <div class="glass-panel p-8 rounded-lg max-w-2xl w-full text-black modal-content">
-            <h3 class="text-3xl font-bold mb-4 text-center" data-i18n="image-modal-title">Adicionar Imagem</h3>
-            <div class="flex space-x-2 mb-4">
-                <input type="text" id="imageSearchInput" class="w-full p-3 bg-transparent border-b border-gray-400 focus:outline-none focus:border-gray-600" placeholder="Buscar imagens..." data-i18n="image-modal-placeholder">
-                <button id="searchImageBtn" class="btn btn-primary" data-i18n="image-modal-search-btn">Buscar</button>
-            </div>
-            <div id="imageResults" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-60 overflow-y-auto mt-4"></div>
-            <div class="flex justify-end mt-6">
-                <button id="closeImageModalBtn" class="btn btn-secondary" data-i18n="image-modal-close-btn">Fechar</button>
-            </div>
-        </div>
+        <p class="text-sm text-gray-400 mt-4">
+            Não possui a senha ou deseja registrar sua empresa?
+            <a href="https://wa.me/5554993243670?text=Ol%C3%A1%21%20Gostaria%20de%20me%20registrar%20para%20ter%20acesso%20ao%20Analisador%20Cristalino." target="_blank" class="text-primary-purple font-semibold hover:text-pink-500 transition">
+                Fale conosco pelo WhatsApp (55 54 993243670)
+            </a>
+        </p>
     </div>
-    
-    <div id="fullscreen-view" class="hidden">
-        <div id="slides-carousel" class="relative w-full h-full flex items-center justify-center overflow-hidden"></div>
-        <div id="laser-pointer" class="hidden"></div>
-        <div class="fullscreen-controls hidden">
-            <button id="prevBtn" class="prev-next-btn">
-                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button id="nextBtn" class="prev-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </button>
-            <button id="exitFullscreenBtn" class="absolute top-4 right-4">
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <span id="slideCounter"></span>
-        </div>
-    </div>
-    
-    <button id="virtualAssistantBtn" class="btn-floating">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
-            <path d="M4.912 2.872a.75.75 0 0 0-.214 1.056l1.455 2.518a24.583 24.583 0 0 1-.771 5.185l-1.454 2.518a.75.75 0 0 0 .214 1.056l1.205.696a24.57 24.57 0 0 1 1.79-1.577 24.57 24.57 0 0 1 1.577 1.79l-.696 1.205a.75.75 0 0 0 1.056.214l2.518-1.454a24.583 24.583 0 0 1 5.185.771l2.518 1.455a.75.75 0 0 0 1.056-.214l.696-1.205a24.57 24.57 0 0 1-1.577-1.79c.12-.224.23-.454.332-.693a.75.75 0 0 0-.584-1.157l-2.518-.696A24.583 24.583 0 0 1 12 6.545V4.75a.75.75 0 0 0-1.5 0v1.795a24.583 24.583 0 0 1-5.185.771L3.196 2.658a.75.75 0 0 0-1.056.214Z" />
-        </svg>
-    </button>
-    
-    <div id="virtualAssistantContainer" class="virtual-assistant-container">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold" data-i18n="va-title">Assistente Virtual</h3>
-            <button id="closeVaBtn" class="text-gray-500 hover:text-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+</div>
+<div id="app" class="w-full max-w-4xl p-6 md:p-10 crystal-card rounded-3xl text-white">
+
+    <h1 class="text-3xl font-extrabold text-center mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+        💎 avaliei M&A AI - Análise e Edição de Imagem 💎
+    </h1>
+    <p class="text-center text-sm mb-8 text-gray-300">
+        Analise imagens, títulos de livros/links, e gere capas com edição simulada.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <div class="space-y-6">
+            <label for="image-input" class="input-file-label flex flex-col items-center justify-center p-4 rounded-xl h-28">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary-blue mb-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
                 </svg>
+                <span class="text-md font-semibold text-gray-200">Clique para Carregar Imagem (Capa ou Objeto)</span>
+                <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageChange(event)">
+            </label>
+            
+            <div id="image-display-area" class="bg-black bg-opacity-30 p-4 rounded-xl min-h-[150px] flex items-center justify-center border border-gray-700 relative">
+                <img id="image-original-preview" class="max-h-48 object-contain rounded-lg shadow-2xl" src="" alt="Pré-visualização da Imagem Original" style="display:none;">
+                <p id="placeholder-text" class="text-gray-500">Nenhuma imagem selecionada/gerada.</p>
+                
+                <div id="edited-image-preview-container">
+                    <div id="edited-image-bg"></div>
+                    <img id="edited-image-object" src="" alt="Objeto Editado">
+                    <div id="edited-image-text-overlay">
+                        <div id="edited-image-text-content"></div> 
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label for="text-input" class="block text-sm font-medium text-gray-400 mb-2">Ou insira Título de Livro / URL de Website:</label>
+                <textarea id="text-input" class="w-full p-3 bg-black bg-opacity-30 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:ring-primary-blue focus:border-primary-blue transition" rows="3" placeholder="Ex: 'O Senhor dos Anéis' ou 'https://www.google.com'"></textarea>
+            </div>
+
+            <button id="analyze-button" class="crystal-button w-full py-3 rounded-xl text-lg font-bold uppercase disabled:opacity-50" onclick="analyzeContent()">
+                Analisar
             </button>
         </div>
-        <div id="va-messages" class="flex-grow overflow-y-auto mb-4 p-2 rounded-lg bg-gray-100 dark:bg-gray-800"></div>
-        <div class="flex space-x-2">
-            <input type="text" id="va-input" class="w-full p-3 rounded-lg bg-transparent border border-gray-400 focus:outline-none focus:border-gray-600" placeholder="Digite sua pergunta..." data-i18n="chat-placeholder">
-            <button id="va-send-btn" class="btn btn-primary px-4 py-2" data-i18n="chat-send-btn">Enviar</button>
+
+        <div class="space-y-6">
+            <h2 class="text-xl font-bold text-primary-blue">
+                ✨ Relatório da IA e Sugestão de Edição
+            </h2>
+            
+            <div id="result-area" class="crystal-card p-6 rounded-xl text-gray-200 text-sm overflow-auto transition duration-500">
+                <p>O resultado da análise aparecerá aqui.</p>
+            </div>
+            
+            <button id="generate-button" class="crystal-button w-full py-3 rounded-xl text-lg font-bold uppercase hidden disabled:opacity-50" onclick="generateAndDownloadEditedImage()">
+                🖼️ Baixar Imagem Editada (Simulação)
+            </button>
+
+            <div id="loading-indicator" class="flex items-center justify-center hidden">
+                <div class="loader mr-3"></div>
+                <span class="text-lg text-primary-purple">Aguarde, a IA está processando...</span>
+            </div>
+
+            <div id="error-message" class="bg-red-900 bg-opacity-50 border border-red-700 p-3 rounded-lg text-red-200 text-sm hidden">
+                Houve um erro na análise. Tente novamente.
+            </div>
         </div>
+
     </div>
+
+</div>
+
+<script>
+    const MODEL_NAME = "gemini-2.5-flash-preview-09-2025";
+    const API_KEY = "AIzaSyAJxkBsquPgfLxQZfFacA-Z4SAupnDW1Cc"; // Sua chave da API
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`; 
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const API_KEY_GEMINI = "AIzaSyDfnepNXRHT2CDUgg9n3v6ej5IV2O3ohiI"; 
-            const API_KEY_PEXELS = "qBVmIu4GKw8cv85GznG0UuKzZLc9CDxmGRnOJTm3H1M8OQPR0rrC9fDl"; 
-
-            const navLogin = document.getElementById('navLogin');
-            const navGenerate = document.getElementById('navGenerate');
-            const navDashboard = document.getElementById('navDashboard');
-            const navGeneral = document.getElementById('navGeneral');
-            const navChat = document.getElementById('navChat');
-            const loginPanel = document.getElementById('login-panel');
-            const generationPanel = document.getElementById('generation-panel');
-            const userDashboard = document.getElementById('user-dashboard');
-            const editorArea = document.getElementById('editor-area');
-            const generalPanel = document.getElementById('general-panel');
-            const chatPanel = document.getElementById('chat-panel');
-
-            const promptInput = document.getElementById('promptInput');
-            const generateBtn = document.getElementById('generateBtn');
-            const statusMessage = document.getElementById('statusMessage');
-            const loadingIcon = document.getElementById('loadingIcon');
-            const statusText = document.getElementById('statusText');
-            const slidesGrid = document.getElementById('slides-grid');
-            
-            const nameInput = document.getElementById('nameInput');
-            const loginBtn = document.getElementById('loginBtn');
-            const authStatus = document.getElementById('authStatus');
-            const createProjectBtn = document.getElementById('createProjectBtn');
-            const saveProjectBtn = document.getElementById('saveProjectBtn');
-            const uploadProjectBtn = document.getElementById('uploadProjectBtn');
-            const uploadInput = document.getElementById('uploadInput');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const usernameDisplay = document.getElementById('usernameDisplay');
-
-            const addSlideBtn = document.getElementById('addSlideBtn');
-            const deleteSlideBtn = document.getElementById('deleteSlideBtn');
-            const addImageBtn = document.getElementById('addImageBtn');
-            const imageModal = document.getElementById('imageModal');
-            const closeImageModalBtn = document.getElementById('closeImageModalBtn');
-            const imageSearchInput = document.getElementById('imageSearchInput');
-            const searchImageBtn = document.getElementById('searchImageBtn');
-            const imageResults = document.getElementById('imageResults');
-            
-            const clock = document.getElementById('clock');
-            const timeSpent = document.getElementById('timeSpent');
-
-            // Fullscreen Presentation Mode elements
-            const presentationModeBtn = document.getElementById('presentationModeBtn');
-            const fullscreenView = document.getElementById('fullscreen-view');
-            const slidesCarousel = document.getElementById('slides-carousel');
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const exitFullscreenBtn = document.getElementById('exitFullscreenBtn');
-            const slideCounter = document.getElementById('slideCounter');
-            const fullscreenControls = document.querySelector('.fullscreen-controls');
-            const laserPointer = document.getElementById('laser-pointer');
-            let laserTimeout;
-
-            // New elements
-            const exportPdfBtn = document.getElementById('exportPdfBtn');
-            const emailProjectBtn = document.getElementById('emailProjectBtn');
-            const currentVersion = document.getElementById('currentVersion');
-
-            // Profile Picture elements
-            const profilePicture = document.getElementById('profile-picture');
-            const profilePicInput = document.getElementById('profilePicInput');
-            const dashboardProfilePic = document.getElementById('dashboardProfilePic');
-            const changeProfilePicBtn = document.getElementById('changeProfilePicBtn');
-
-            // Chat elements
-            const chatInput = document.getElementById('chat-input');
-            const sendChatBtn = document.getElementById('send-chat-btn');
-            const chatMessages = document.getElementById('chat-messages');
-            
-            // New Virtual Assistant elements
-            const virtualAssistantBtn = document.getElementById('virtualAssistantBtn');
-            const virtualAssistantContainer = document.getElementById('virtualAssistantContainer');
-            const closeVaBtn = document.getElementById('closeVaBtn');
-            const vaInput = document.getElementById('va-input');
-            const vaSendBtn = document.getElementById('va-send-btn');
-            const vaMessages = document.getElementById('va-messages');
-
-
-            // Language elements
-            const languageSwitcher = document.getElementById('language-switcher');
-            const langPtBtn = document.getElementById('lang-pt');
-            const langEnBtn = document.getElementById('lang-en');
-            let currentLanguage = localStorage.getItem('currentLanguage') || 'pt';
-            
-            const translations = {
-                'pt': {
-                    'login-title': 'Liberte Sua Criatividade!',
-                    'login-subtitle': 'Entre para criar, aprender e inspirar. Seu próximo grande projeto começa aqui.',
-                    'login-name-label': 'Seu Nome de Estudante',
-                    'login-btn': 'Entrar',
-                    'generate-title': 'Crie com a Inteligência Artificial!',
-                    'generate-btn': 'Gerar Slides',
-                    'generate-status-text': 'Aguarde, a IA está trabalhando...',
-                    'dashboard-change-pic-btn': 'Mudar Foto',
-                    'dashboard-title': 'Meus Projetos de Estudo',
-                    'dashboard-no-projects': 'Nenhum projeto salvo ainda.',
-                    'dashboard-new-project-btn': 'Novo Projeto',
-                    'dashboard-upload-btn': 'Upload',
-                    'dashboard-logout-btn': 'Sair',
-                    'editor-new-slide-btn': 'Novo Slide',
-                    'editor-delete-slide-btn': 'Excluir Slide',
-                    'editor-add-image-btn': 'Adicionar Imagem',
-                    'editor-save-btn': 'Salvar Projeto',
-                    'editor-export-pdf-btn': 'Exportar PDF',
-                    'editor-email-btn': 'Enviar por Email',
-                    'chat-title': 'Chat M&A Pro Beta',
-                    'chat-placeholder': 'Digite sua pergunta...',
-                    'chat-send-btn': 'Enviar',
-                    'general-title': 'Atualizações',
-                    'general-version': 'Versão do Sistema: ',
-                    'general-updating': 'Atualizando...',
-                    'footer-copyright': '&copy; 2023 AI Slide PRO. Todos os direitos reservados.',
-                    'nav-login': 'Entrar',
-                    'nav-generate': 'Gerar',
-                    'nav-dashboard': 'Dashboard',
-                    'nav-general': 'Atualizações',
-                    'nav-chat': 'Chat',
-                    'nav-present': 'Apresentar',
-                    'image-modal-title': 'Adicionar Imagem',
-                    'image-modal-placeholder': 'Buscar imagens...',
-                    'image-modal-search-btn': 'Buscar',
-                    'image-modal-close-btn': 'Fechar',
-                    'va-title': 'Assistente Virtual',
-                },
-                'en': {
-                    'login-title': 'Unleash Your Creativity!',
-                    'login-subtitle': 'Log in to create, learn, and inspire. Your next big project starts here.',
-                    'login-name-label': 'Your Student Name',
-                    'login-btn': 'Log In',
-                    'generate-title': 'Create with Artificial Intelligence!',
-                    'generate-btn': 'Generate Slides',
-                    'generate-status-text': 'Please wait, the AI is working...',
-                    'dashboard-change-pic-btn': 'Change Photo',
-                    'dashboard-title': 'My Study Projects',
-                    'dashboard-no-projects': 'No projects saved yet.',
-                    'dashboard-new-project-btn': 'New Project',
-                    'dashboard-upload-btn': 'Upload',
-                    'dashboard-logout-btn': 'Log Out',
-                    'editor-new-slide-btn': 'New Slide',
-                    'editor-delete-slide-btn': 'Delete Slide',
-                    'editor-add-image-btn': 'Add Image',
-                    'editor-save-btn': 'Save Project',
-                    'editor-export-pdf-btn': 'Export PDF',
-                    'editor-email-btn': 'Send by Email',
-                    'chat-title': 'Chat M&A Pro Beta',
-                    'chat-placeholder': 'Type your question...',
-                    'chat-send-btn': 'Send',
-                    'general-title': 'Updates',
-                    'general-version': 'System Version: ',
-                    'general-updating': 'Updating...',
-                    'footer-copyright': '&copy; 2023 AI Slide PRO. All rights reserved.',
-                    'nav-login': 'Log In',
-                    'nav-generate': 'Generate',
-                    'nav-dashboard': 'Dashboard',
-                    'nav-general': 'Updates',
-                    'nav-chat': 'Chat',
-                    'nav-present': 'Present',
-                    'image-modal-title': 'Add Image',
-                    'image-modal-placeholder': 'Search images...',
-                    'image-modal-search-btn': 'Search',
-                    'image-modal-close-btn': 'Close',
-                    'va-title': 'Virtual Assistant',
-                }
-            };
-            
-            const updateTexts = () => {
-                const elementsToTranslate = document.querySelectorAll('[data-i18n]');
-                elementsToTranslate.forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if (translations[currentLanguage][key]) {
-                        el.textContent = translations[currentLanguage][key];
-                    }
-                });
-                
-                // Special cases for elements with placeholders or custom text
-                if (currentLanguage === 'en') {
-                    nameInput.placeholder = 'Your name';
-                    chatInput.placeholder = 'Type your question...';
-                    vaInput.placeholder = 'Type your question...';
-                } else {
-                    nameInput.placeholder = 'Seu nome';
-                    chatInput.placeholder = 'Digite sua pergunta...';
-                    vaInput.placeholder = 'Digite sua pergunta...';
-                }
-            };
-
-            const toggleLanguage = (lang) => {
-                currentLanguage = lang;
-                localStorage.setItem('currentLanguage', lang);
-                updateTexts();
-            };
-
-            langPtBtn.addEventListener('click', () => toggleLanguage('pt'));
-            langEnBtn.addEventListener('click', () => toggleLanguage('en'));
-
-
-            let presentation = {
-                slides: [],
-                activeSlideIndex: -1,
-            };
-            let currentUser = null;
-            let userProjects = [];
-            let controlsTimeout;
-            let totalTimeInSeconds = parseInt(localStorage.getItem('totalTimeInSeconds')) || 0;
-            let startTime = Date.now();
-            let timerInterval;
-
-            const showPanel = (panelId) => {
-                const panels = [loginPanel, generationPanel, userDashboard, editorArea, generalPanel, chatPanel];
-                panels.forEach(panel => panel.classList.add('hidden'));
-                const targetPanel = document.getElementById(panelId);
-                if (targetPanel) {
-                    targetPanel.classList.remove('hidden');
-                }
-                presentationModeBtn.classList.toggle('hidden', panelId !== 'editor-area' || presentation.slides.length === 0);
-            };
-            
-            navLogin.addEventListener('click', () => {
-                showPanel('login-panel');
-            });
-            navGenerate.addEventListener('click', () => {
-                showPanel('generation-panel');
-            });
-            navDashboard.addEventListener('click', () => {
-                if (currentUser) {
-                    showPanel('user-dashboard');
-                    renderProjectsList();
-                } else {
-                    alert("Por favor, faça login para acessar o Dashboard.");
-                    showPanel('login-panel');
-                }
-            });
-            navGeneral.addEventListener('click', () => {
-                showPanel('general-panel');
-            });
-            navChat.addEventListener('click', () => {
-                showPanel('chat-panel');
-            });
-
-
-            const renderSlidesGrid = () => {
-                slidesGrid.innerHTML = '';
-                presentation.slides.forEach((slide, index) => {
-                    const slideElement = document.createElement('div');
-                    slideElement.dataset.index = index; 
-                    
-                    const isSelected = index === presentation.activeSlideIndex;
-                    
-                    slideElement.className = `slide-container ${isSelected ? 'selected' : ''}`;
-                    
-                    if (slide.backgroundImage) {
-                        slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
-                        slideElement.style.color = '#fff';
-                    } else {
-                         slideElement.style.backgroundImage = 'none';
-                         slideElement.style.color = 'var(--color-text-dark)';
-                    }
-                    
-                    const titleClass = `text-2xl font-bold mb-4 editable`;
-                    const bodyClass = `text-sm leading-relaxed whitespace-pre-wrap editable`;
-
-                    slideElement.innerHTML = `
-                        <h2 contenteditable="true" class="${titleClass}">${slide.title}</h2>
-                        <p contenteditable="true" class="${bodyClass}">${slide.body}</p>
-                    `;
-                    
-                    const editableElements = slideElement.querySelectorAll('[contenteditable="true"]');
-                    editableElements.forEach(el => {
-                        el.addEventListener('input', () => {
-                            const newText = el.innerHTML;
-                            if (el.tagName === 'H2') {
-                                presentation.slides[index].title = newText;
-                            } else if (el.tagName === 'P') {
-                                presentation.slides[index].body = newText;
-                            }
-                        });
-                    });
-
-                    slidesGrid.appendChild(slideElement);
-                });
-                presentationModeBtn.classList.toggle('hidden', presentation.slides.length === 0);
-            };
-
-            const generateSlides = async () => {
-                const prompt = promptInput.value.trim();
-                if (!prompt) {
-                    statusText.textContent = currentLanguage === 'en' ? "Please enter a topic to generate the slides." : "Por favor, digite um tópico para gerar os slides.";
-                    return;
-                }
-                showPanel('editor-area');
-                generateBtn.disabled = true;
-                generateBtn.textContent = currentLanguage === 'en' ? 'Generating...' : 'Gerando...';
-                loadingIcon.classList.remove('hidden');
-                statusText.textContent = currentLanguage === 'en' ? 'Please wait, the AI is working...' : 'Aguarde, a IA está trabalhando...';
-                
-                presentation.slides = [];
-
-                try {
-                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY_GEMINI}`;
-
-                    const ptPrompt = `Crie um conteúdo de slides detalhado e bem estruturado sobre o seguinte tópico: "${prompt}". Para cada slide, forneça um título claro e um corpo de texto. Adicione uma sugestão de imagem (em inglês) para cada slide. Separe cada slide com duas quebras de linha. Responda apenas com o texto, sem formatação extra como asteriscos ou cabeçalhos.
-                    Exemplo de resposta:
-                    Slide 1: Introdução ao Tópico
-                    Ponto 1
-                    Ponto 2
-                    Sugestão de imagem: image of a computer
-                    
-                    Slide 2: Título do Slide
-                    Ponto 1
-                    Ponto 2
-                    Sugestão de imagem: image of a sunset`;
-
-                    const enPrompt = `Create a detailed and well-structured slide content on the following topic: "${prompt}". For each slide, provide a clear title and body text. Add an image suggestion (in English) for each slide. Separate each slide with two line breaks. Respond only with the text, without extra formatting like asterisks or headings.
-                    Example response:
-                    Slide 1: Introduction to the Topic
-                    Point 1
-                    Point 2
-                    Image suggestion: image of a computer
-                    
-                    Slide 2: Slide Title
-                    Point 1
-                    Point 2
-                    Image suggestion: image of a sunset`;
-
-                    const selectedPrompt = currentLanguage === 'en' ? enPrompt : ptPrompt;
-
-                    const textPayload = {
-                        contents: [{
-                            parts: [{ text: selectedPrompt }]
-                        }]
-                    };
-                    const textResponse = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(textPayload)
-                    });
-                    if (!textResponse.ok) {
-                        throw new Error(`Error generating slide text.`);
-                    }
-                    const textResult = await textResponse.json();
-                    const responseText = textResult.candidates?.[0]?.content?.parts?.[0]?.text;
-                    if (!responseText) {
-                        statusText.textContent = currentLanguage === 'en' ? 'The API did not return text content. Try a different topic.' : 'A API não retornou conteúdo de texto. Tente um tópico diferente.';
-                        return;
-                    }
-
-                    const slideContents = responseText.replace(/\*/g, '').trim().split('\n\n').filter(p => p.trim() !== '');
-                    if (slideContents.length === 0) {
-                        statusText.textContent = currentLanguage === 'en' ? 'No slides were generated. Try a different topic.' : 'Nenhum slide foi gerado. Tente um tópico diferente.';
-                        return;
-                    }
-
-                    slideContents.forEach((content) => {
-                        const lines = content.split('\n');
-                        const titleLine = lines[0];
-                        const bodyLines = lines.slice(1).filter(line => !line.includes('Sugestão de imagem:') && !line.includes('Image suggestion:'));
-                        const title = titleLine.replace(/Slide \d+: /, '').replace(/Slide \d+:/, '').trim();
-                        const body = bodyLines.map(line => line.trim()).join('\n');
-                        const imageSuggestion = lines.find(line => line.includes('Sugestão de imagem:') || line.includes('Image suggestion:'))?.replace('Sugestão de imagem:', '').replace('Image suggestion:', '').trim();
-
-                        presentation.slides.push({ title, body, backgroundImage: null, imageSuggestion });
-                    });
-                    
-                    statusText.textContent = currentLanguage === 'en' ? 'Slides generated successfully!' : 'Slides gerados com sucesso!';
-                    presentation.activeSlideIndex = 0;
-                    renderSlidesGrid();
-
-                } catch (error) {
-                    console.error('Erro na requisição:', error);
-                    statusText.textContent = currentLanguage === 'en' ? `Error: ${error.message}` : `Erro: ${error.message}`;
-                } finally {
-                    generateBtn.disabled = false;
-                    generateBtn.textContent = currentLanguage === 'en' ? 'Generate Slides' : 'Gerar Slides';
-                    loadingIcon.classList.add('hidden');
-                }
-            };
-            
-            const addSlide = () => {
-                const newSlide = {
-                    title: currentLanguage === 'en' ? 'New Slide' : 'Novo Slide',
-                    body: currentLanguage === 'en' ? 'Click to edit text...' : 'Clique para editar o texto...',
-                    backgroundImage: null,
-                    imageSuggestion: null,
-                };
-                presentation.slides.push(newSlide);
-                presentation.activeSlideIndex = presentation.slides.length - 1;
-                renderSlidesGrid();
-            };
-            
-            const deleteSlide = () => {
-                if (presentation.slides.length > 0 && presentation.activeSlideIndex > -1) {
-                    presentation.slides.splice(presentation.activeSlideIndex, 1);
-                    presentation.activeSlideIndex = Math.min(presentation.activeSlideIndex, presentation.slides.length - 1);
-                    renderSlidesGrid();
-                }
-            };
-
-            const searchImages = async (query) => {
-                if (!query) return;
-                const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=12`;
-                try {
-                    const response = await fetch(url, {
-                        headers: { 'Authorization': API_KEY_PEXELS }
-                    });
-                    const data = await response.json();
-                    imageResults.innerHTML = '';
-                    data.photos.forEach(photo => {
-                        const img = document.createElement('img');
-                        img.src = photo.src.medium;
-                        img.className = 'w-full h-24 object-cover rounded-md cursor-pointer hover:scale-105 transition-transform';
-                        img.addEventListener('click', () => {
-                            if (presentation.activeSlideIndex > -1) {
-                                presentation.slides[presentation.activeSlideIndex].backgroundImage = photo.src.original;
-                                imageModal.classList.remove('active');
-                                renderSlidesGrid();
-                            }
-                        });
-                        imageResults.appendChild(img);
-                    });
-                } catch (error) {
-                    console.error('Erro ao buscar imagens:', error);
-                    alert(currentLanguage === 'en' ? 'Failed to search for images. Please try again.' : 'Falha ao buscar imagens. Tente novamente.');
-                }
-            };
-
-            const saveProject = () => {
-                if (!currentUser) {
-                    alert(currentLanguage === 'en' ? "Please log in to save the project." : "Por favor, faça login para salvar o projeto.");
-                    return;
-                }
-                if (presentation.slides.length === 0) {
-                    alert(currentLanguage === 'en' ? "There are no slides to save." : "Não há slides para salvar.");
-                    return;
-                }
-                
-                const projectName = prompt(currentLanguage === 'en' ? "Enter a name for your project:" : "Digite um nome para o seu projeto:");
-                if (!projectName) {
-                    alert(currentLanguage === 'en' ? "Project name is required." : "Nome do projeto é obrigatório.");
-                    return;
-                }
-
-                const newProject = {
-                    id: Date.now(),
-                    name: projectName,
-                    slides: presentation.slides,
-                    createdAt: new Date().toISOString()
-                };
-
-                userProjects.push(newProject);
-                localStorage.setItem(`aiSlideProjects_${currentUser.name}`, JSON.stringify(userProjects));
-                alert(currentLanguage === 'en' ? `Project "${projectName}" saved successfully!` : `Projeto "${projectName}" salvo com sucesso!`);
-                renderProjectsList();
-            };
-
-            const loadProjectsFromLocalStorage = (userName) => {
-                const savedProjects = localStorage.getItem(`aiSlideProjects_${userName}`);
-                userProjects = savedProjects ? JSON.parse(savedProjects) : [];
-            };
-
-            const renderProjectsList = () => {
-                const projectsList = document.getElementById('projects-list');
-                projectsList.innerHTML = '';
-                if (userProjects.length === 0) {
-                    projectsList.innerHTML = `<p class="text-gray-500 col-span-full" data-i18n="dashboard-no-projects">${currentLanguage === 'en' ? 'No projects saved yet.' : 'Nenhum projeto salvo ainda.'}</p>`;
-                } else {
-                    userProjects.forEach(project => {
-                        const projectCard = document.createElement('div');
-                        projectCard.className = 'glass-panel p-6 rounded-lg text-left cursor-pointer transition-transform hover:scale-105 relative';
-                        projectCard.innerHTML = `
-                            <h3 class="text-xl font-bold mb-2">${project.name}</h3>
-                            <p class="text-gray-500 text-sm">${project.slides.length} slides</p>
-                            <div class="flex space-x-2 mt-4">
-                                <button class="btn btn-secondary text-xs px-4 py-2 download-btn" data-project-id="${project.id}">${currentLanguage === 'en' ? 'Download' : 'Baixar'}</button>
-                            </div>
-                        `;
-                        projectCard.addEventListener('click', (e) => {
-                            if (!e.target.classList.contains('download-btn')) {
-                                presentation.slides = project.slides;
-                                presentation.activeSlideIndex = 0;
-                                renderSlidesGrid();
-                                showPanel('editor-area');
-                            }
-                        });
-                        projectsList.appendChild(projectCard);
-                    });
-                }
-            };
-            
-            const downloadProjectAsJson = (project) => {
-                const dataStr = JSON.stringify(project, null, 2);
-                const blob = new Blob([dataStr], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `${project.name.replace(/[^a-z0-9]/gi, '_')}.json`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            };
-
-            const handleLogout = () => {
-                localStorage.removeItem('aiSlideCurrentUser');
-                currentUser = null;
-                presentation = { slides: [], activeSlideIndex: -1 };
-                userProjects = [];
-                showPanel('login-panel');
-            };
-
-            loginBtn.addEventListener('click', () => {
-                const name = nameInput.value;
-                if (!name) {
-                    authStatus.textContent = currentLanguage === 'en' ? 'Please enter your name.' : 'Por favor, digite seu nome.';
-                    return;
-                }
-                const profilePic = profilePicture.src;
-                currentUser = { name: name, profilePic: profilePic };
-                localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
-                loadProjectsFromLocalStorage(currentUser.name);
-                authStatus.textContent = '';
-                showPanel('user-dashboard');
-                usernameDisplay.textContent = currentLanguage === 'en' ? `Welcome, ${currentUser.name}!` : `Bem-vindo(a), ${currentUser.name}!`;
-                dashboardProfilePic.src = currentUser.profilePic;
-            });
-
-            profilePicture.addEventListener('click', () => {
-                profilePicInput.click();
-            });
-
-            changeProfilePicBtn.addEventListener('click', () => {
-                profilePicInput.click();
-            });
-            
-            profilePicInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const imageUrl = e.target.result;
-                        profilePicture.src = imageUrl;
-                        if (currentUser) {
-                            currentUser.profilePic = imageUrl;
-                            localStorage.setItem('aiSlideCurrentUser', JSON.stringify(currentUser));
-                            dashboardProfilePic.src = imageUrl;
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            // Chat M&A Logic
-            const addChatMessage = (text, sender, target) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = sender === 'user' ? 'user-message' : 'ai-message';
-                messageDiv.textContent = text;
-                target.appendChild(messageDiv);
-                target.scrollTop = target.scrollHeight; // Auto-scroll
-            };
-
-            const getChatResponse = async (query) => {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY_GEMINI}`;
-
-                const ptChatPrompt = `Responda a esta pergunta de forma concisa e útil, como um assistente de IA: "${query}"`;
-                const enChatPrompt = `Answer this question concisely and usefully, like an AI assistant: "${query}"`;
-                const selectedChatPrompt = currentLanguage === 'en' ? enChatPrompt : ptChatPrompt;
-
-                const payload = {
-                    contents: [{
-                        parts: [
-                            { text: selectedChatPrompt }
-                        ]
-                    }]
-                };
-
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    const result = await response.json();
-                    return result.candidates?.[0]?.content?.parts?.[0]?.text || (currentLanguage === 'en' ? "Sorry, I couldn't get a response. Please try again." : "Desculpe, não consegui obter uma resposta. Tente novamente.");
-                } catch (error) {
-                    console.error("Erro ao chamar a API do Gemini:", error);
-                    return currentLanguage === 'en' ? "Sorry, a connection error occurred. Please try again later." : "Desculpe, ocorreu um erro de conexão. Tente novamente mais tarde.";
-                }
-            };
-
-            const sendChat = async () => {
-                const query = chatInput.value.trim();
-                if (!query) return;
-
-                addChatMessage(query, 'user', chatMessages);
-                chatInput.value = '';
-
-                const aiResponse = await getChatResponse(query);
-                addChatMessage(aiResponse, 'ai', chatMessages);
-            };
-
-            // Text-to-speech function
-            const speakText = (text) => {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = currentLanguage === 'en' ? 'en-US' : 'pt-BR';
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    console.warn("API de fala não suportada neste navegador.");
-                }
-            };
-
-            const sendVaChat = async () => {
-                const query = vaInput.value.trim();
-                if (!query) return;
-            
-                addChatMessage(query, 'user', vaMessages);
-                vaInput.value = '';
-            
-                const aiResponse = await getChatResponse(query);
-                addChatMessage(aiResponse, 'ai', vaMessages);
-                speakText(aiResponse); // Added call to speakText
-            };
-            
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendChat();
-                }
-            });
-            sendChatBtn.addEventListener('click', sendChat);
-            
-            vaInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    sendVaChat();
-                }
-            });
-            vaSendBtn.addEventListener('click', sendVaChat);
-            
-            virtualAssistantBtn.addEventListener('click', () => {
-                virtualAssistantContainer.classList.toggle('active');
-            });
-            closeVaBtn.addEventListener('click', () => {
-                virtualAssistantContainer.classList.remove('active');
-            });
-
-
-            logoutBtn.addEventListener('click', handleLogout);
-            createProjectBtn.addEventListener('click', () => showPanel('generation-panel'));
-            uploadProjectBtn.addEventListener('click', () => uploadInput.click());
-
-            uploadInput.addEventListener('change', (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const project = JSON.parse(e.target.result);
-                        if (project && project.slides) {
-                            presentation.slides = project.slides;
-                            presentation.activeSlideIndex = 0;
-                            renderSlidesGrid();
-                            showPanel('editor-area');
-                            alert(currentLanguage === 'en' ? 'Project loaded successfully!' : 'Projeto carregado com sucesso!');
-                        } else {
-                            alert(currentLanguage === 'en' ? 'Invalid file. Make sure to upload a valid JSON project file.' : 'Arquivo inválido. Certifique-se de carregar um arquivo de projeto JSON válido.');
-                        }
-                    } catch (error) {
-                        console.error('Erro ao ler ou analisar o arquivo JSON:', error);
-                        alert(currentLanguage === 'en' ? 'Error loading file. The file may be corrupted or is not a valid JSON.' : 'Erro ao carregar o arquivo. O arquivo pode estar corrompido ou não é um JSON válido.');
-                    }
-                };
-                reader.readAsText(file);
-            });
-            
-            document.addEventListener('click', (e) => {
-                const slideElement = e.target.closest('.slide-container');
-                if (slideElement) {
-                    const index = parseInt(slideElement.dataset.index);
-                    presentation.activeSlideIndex = index;
-                    renderSlidesGrid();
-                }
-                const downloadBtn = e.target.closest('.download-btn');
-                if (downloadBtn) {
-                    const projectId = parseInt(downloadBtn.dataset.projectId);
-                    const project = userProjects.find(p => p.id === projectId);
-                    if (project) {
-                        downloadProjectAsJson(project);
-                    }
-                }
-            });
-
-            generateBtn.addEventListener('click', generateSlides);
-            addSlideBtn.addEventListener('click', addSlide);
-            deleteSlideBtn.addEventListener('click', deleteSlide);
-            saveProjectBtn.addEventListener('click', saveProject);
-            
-            addImageBtn.addEventListener('click', () => {
-                if (presentation.activeSlideIndex === -1) {
-                    alert(currentLanguage === 'en' ? "Select a slide to add the image to." : "Selecione um slide para adicionar a imagem.");
-                    return;
-                }
-                imageModal.classList.add('active');
-                const activeSlide = presentation.slides[presentation.activeSlideIndex];
-                if (activeSlide && activeSlide.imageSuggestion) {
-                    imageSearchInput.value = activeSlide.imageSuggestion;
-                    searchImages(activeSlide.imageSuggestion);
-                }
-            });
-            closeImageModalBtn.addEventListener('click', () => imageModal.classList.remove('active'));
-            imageSearchInput.addEventListener('keypress', (e) => {
-                if(e.key === 'Enter') {
-                    searchImages(imageSearchInput.value);
-                }
-            });
-            searchImageBtn.addEventListener('click', () => searchImages(imageSearchInput.value));
-
-            const checkAuthState = () => {
-                const savedUser = localStorage.getItem('aiSlideCurrentUser');
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    loadProjectsFromLocalStorage(currentUser.name);
-                    showPanel('user-dashboard');
-                    usernameDisplay.textContent = currentLanguage === 'en' ? `Welcome, ${currentUser.name}!` : `Bem-vindo(a), ${currentUser.name}!`;
-                    profilePicture.src = currentUser.profilePic;
-                    dashboardProfilePic.src = currentUser.profilePic;
-                } else {
-                    showPanel('login-panel');
-                }
-            };
-            checkAuthState();
-
-            const formatTime = (seconds) => {
-                const h = Math.floor(seconds / 3600);
-                const m = Math.floor((seconds % 3600) / 60);
-                const s = seconds % 60;
-                return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-            };
-
-            const updateClock = () => {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                const seconds = now.getSeconds().toString().padStart(2, '0');
-                clock.textContent = `${hours}:${minutes}:${seconds}`;
-            };
-
-            const updateTimeSpent = () => {
-                const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-                const currentTotal = totalTimeInSeconds + elapsedTime;
-                timeSpent.textContent = currentLanguage === 'en' ? `Total time: ${formatTime(currentTotal)}` : `Tempo total: ${formatTime(currentTotal)}`;
-            };
-
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            updateTimeSpent();
-            timerInterval = setInterval(updateTimeSpent, 1000);
-
-            window.addEventListener('beforeunload', () => {
-                const sessionTime = Math.floor((Date.now() - startTime) / 1000);
-                totalTimeInSeconds += sessionTime;
-                localStorage.setItem('totalTimeInSeconds', totalTimeInSeconds);
-            });
-            
-            // Initial UI state setup for Beta version
-            document.body.classList.add('beta-version');
-            currentVersion.textContent = '4.1 Beta';
-            exportPdfBtn.classList.remove('hidden');
-            emailProjectBtn.classList.remove('hidden');
-            navChat.classList.remove('hidden');
-            languageSwitcher.classList.remove('hidden');
-            updateTexts();
-
-            // PDF Export Logic
-            exportPdfBtn.addEventListener('click', async () => {
-                if (presentation.slides.length === 0) {
-                    alert(currentLanguage === 'en' ? 'There are no slides to export.' : 'Não há slides para exportar.');
-                    return;
-                }
-                const doc = new jspdf.jsPDF('p', 'pt', 'a4');
-                const margin = 20;
-                let y = margin;
-                
-                for (let i = 0; i < presentation.slides.length; i++) {
-                    const slide = presentation.slides[i];
-                    
-                    if (i > 0) {
-                        doc.addPage();
-                        y = margin;
-                    }
-
-                    const titleText = slide.title;
-                    const bodyText = slide.body;
-
-                    doc.setFontSize(24);
-                    doc.text(titleText, margin, y);
-                    y += 30;
-                    
-                    doc.setFontSize(12);
-                    const splitText = doc.splitTextToSize(bodyText, 550);
-                    doc.text(splitText, margin, y);
-                }
-                
-                doc.save(currentLanguage === 'en' ? 'presentation.pdf' : 'apresentacao.pdf');
-                alert(currentLanguage === 'en' ? 'PDF exported successfully!' : 'PDF exportado com sucesso!');
-            });
-
-            // Email Logic
-            emailProjectBtn.addEventListener('click', () => {
-                if (presentation.slides.length === 0) {
-                    alert(currentLanguage === 'en' ? 'There are no slides to send.' : 'Não há slides para enviar.');
-                    return;
-                }
-                const subject = currentLanguage === 'en' ? `AI Slide PRO Project: ${presentation.slides[0].title}` : `Projeto AI Slide PRO: ${presentation.slides[0].title}`;
-                let body = currentLanguage === 'en' ? `Hello! I would like to share this slide project with you.\n\n` : `Olá! Gostaria de compartilhar este projeto de slides com você.\n\n`;
-                presentation.slides.forEach((slide, index) => {
-                    body += currentLanguage === 'en' ? `--- Slide ${index + 1} ---\n` : `--- Slide ${index + 1} ---\n`;
-                    body += currentLanguage === 'en' ? `Title: ${slide.title}\n` : `Título: ${slide.title}\n`;
-                    body += currentLanguage === 'en' ? `Content:\n${slide.body}\n\n` : `Conteúdo:\n${slide.body}\n\n`;
-                });
-                
-                const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-                window.location.href = mailtoLink;
-            });
-
-
-            // Fullscreen Presentation Mode Logic
-            const enterPresentationMode = () => {
-                if (presentation.slides.length === 0) {
-                    alert(currentLanguage === 'en' ? "There are no slides to present." : "Não há slides para apresentar.");
-                    return;
-                }
-
-                slidesCarousel.innerHTML = '';
-                presentation.slides.forEach((slide, index) => {
-                    const slideElement = document.createElement('div');
-                    slideElement.className = `fullscreen-slide`;
-                    
-                    if (slide.backgroundImage) {
-                        slideElement.classList.add('with-bg');
-                        slideElement.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${slide.backgroundImage})`;
-                        slideElement.style.color = '#fff';
-                    } else {
-                         slideElement.style.background = 'linear-gradient(135deg, var(--color-bg-start), var(--color-bg-mid), var(--color-bg-end))';
-                         slideElement.style.color = 'var(--color-text-dark)';
-                    }
-                    const titleHTML = `<h2 class="text-5xl font-bold mb-8">${slide.title}</h2>`;
-                    const bodyHTML = `<p class="text-2xl leading-relaxed whitespace-pre-wrap">${slide.body}</p>`;
-                    
-                    slideElement.innerHTML = titleHTML + bodyHTML;
-                    slideElement.style.display = 'none';
-                    slidesCarousel.appendChild(slideElement);
-                });
-                
-                fullscreenView.style.display = 'flex';
-                presentation.activeSlideIndex = presentation.activeSlideIndex !== -1 ? presentation.activeSlideIndex : 0;
-                showCurrentFullscreenSlide();
-                showFullscreenControls();
-                document.documentElement.requestFullscreen();
-            };
-
-            const showCurrentFullscreenSlide = () => {
-                const slides = slidesCarousel.querySelectorAll('.fullscreen-slide');
-                slides.forEach((slide, index) => {
-                    slide.style.display = (index === presentation.activeSlideIndex) ? 'flex' : 'none';
-                });
-                slideCounter.textContent = `${presentation.activeSlideIndex + 1} / ${presentation.slides.length}`;
-            };
-
-            const handleSlideNavigation = (direction) => {
-                if (direction === 'next' && presentation.activeSlideIndex < presentation.slides.length - 1) {
-                    presentation.activeSlideIndex++;
-                } else if (direction === 'prev' && presentation.activeSlideIndex > 0) {
-                    presentation.activeSlideIndex--;
-                }
-                showCurrentFullscreenSlide();
-            };
-
-            const showFullscreenControls = () => {
-                clearTimeout(controlsTimeout);
-                fullscreenControls.classList.add('active');
-                controlsTimeout = setTimeout(() => {
-                    fullscreenControls.classList.remove('active');
-                }, 3000);
-            };
-
-            const exitPresentationMode = () => {
-                fullscreenView.style.display = 'none';
-                clearTimeout(controlsTimeout);
-                if (document.fullscreenElement) {
-                    document.exitFullscreen();
-                }
-            };
-            
-            const handleLaserPointer = (e) => {
-                laserPointer.style.left = `${e.clientX}px`;
-                laserPointer.style.top = `${e.clientY}px`;
-                laserPointer.classList.remove('hidden');
-                clearTimeout(laserTimeout);
-                laserTimeout = setTimeout(() => {
-                    laserPointer.classList.add('hidden');
-                }, 1000);
-            };
-
-            presentationModeBtn.addEventListener('click', enterPresentationMode);
-            prevBtn.addEventListener('click', () => handleSlideNavigation('prev'));
-            nextBtn.addEventListener('click', () => handleSlideNavigation('next'));
-            exitFullscreenBtn.addEventListener('click', exitPresentationMode);
-            fullscreenView.addEventListener('mousemove', handleLaserPointer);
-
-            document.addEventListener('keydown', (e) => {
-                if (fullscreenView.style.display === 'flex') {
-                    if (e.key === 'ArrowRight') handleSlideNavigation('next');
-                    else if (e.key === 'ArrowLeft') handleSlideNavigation('prev');
-                    else if (e.key === 'Escape') exitPresentationMode();
-                }
-            });
-
-            fullscreenView.addEventListener('mousemove', showFullscreenControls);
-            fullscreenView.addEventListener('touchstart', showFullscreenControls);
+    const CORRECT_PASSWORD = 'sebosoler';
+    const authModal = document.getElementById('auth-modal');
+    const accessPasswordInput = document.getElementById('access-password');
+    const passwordError = document.getElementById('password-error');
+
+    const imageInput = document.getElementById('image-input');
+    const imageOriginalPreview = document.getElementById('image-original-preview');
+    const placeholderText = document.getElementById('placeholder-text');
+    const analyzeButton = document.getElementById('analyze-button');
+    const resultArea = document.getElementById('result-area');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const errorMessage = document.getElementById('error-message');
+    const textInput = document.getElementById('text-input');
+    const generateButton = document.getElementById('generate-button');
+    
+    // Novos elementos para a pré-visualização da imagem "editada"
+    const editedImagePreviewContainer = document.getElementById('edited-image-preview-container');
+    const editedImageBg = document.getElementById('edited-image-bg');
+    const editedImageObject = document.getElementById('edited-image-object');
+    const editedImageTextOverlay = document.getElementById('edited-image-text-overlay');
+    // Novo: Container estruturado
+    const editedImageTextContent = document.getElementById('edited-image-text-content'); 
+
+    let base64Image = null;
+    let mimeType = '';
+    let lastAnalysisText = ''; 
+    let lastAnalysisTitle = 'Imagem_Editada'; 
+    let currentObjectUrl = null; // Para manter o URL do objeto na prévia
+
+    function getLevenshteinDistance(a, b) {
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+        for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                const cost = (b.charAt(i - 1) === a.charAt(j - 1)) ? 0 : 1;
+                matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+    function checkPassword() {
+        passwordError.classList.add('hidden');
+        const input = accessPasswordInput.value.toLowerCase().trim(); 
+        const maxEditDistance = 1; 
+        const distance = getLevenshteinDistance(input, CORRECT_PASSWORD);
+        if (distance <= maxEditDistance) {
+            sessionStorage.setItem('isAuthenticated', 'true');
+            authModal.classList.add('hidden');
+        } else {
+            passwordError.classList.remove('hidden');
+            accessPasswordInput.value = '';
+            accessPasswordInput.focus();
+        }
+    }
+    function initAuth() {
+        const isAuthenticated = sessionStorage.getItem('isAuthenticated');
+        if (isAuthenticated === 'true') {
+            authModal.classList.add('hidden');
+        } else {
+            authModal.classList.remove('hidden');
+            setTimeout(() => accessPasswordInput.focus(), 100); 
+        }
+    }
+    
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
         });
-    </script>
+    }
+
+    async function handleImageChange(event) {
+        errorMessage.classList.add('hidden');
+        generateButton.classList.add('hidden');
+        
+        // Esconde as duas prévias
+        imageOriginalPreview.style.display = 'none';
+        editedImagePreviewContainer.style.display = 'none';
+
+        const file = event.target.files[0];
+        
+        if (file) {
+            try {
+                mimeType = file.type;
+                base64Image = await fileToBase64(file);
+                
+                // Exibe a imagem original no preview do upload
+                imageOriginalPreview.src = URL.createObjectURL(file);
+                imageOriginalPreview.style.display = 'block';
+                placeholderText.style.display = 'none';
+
+                // Guarda o URL para usar no objeto editado
+                if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl); // Libera o anterior
+                currentObjectUrl = URL.createObjectURL(file);
+                editedImageObject.src = currentObjectUrl; // Define o objeto para a prévia editada
+                editedImageObject.style.display = 'block'; // Garante que o objeto está visível no container editado
+                
+                resultArea.innerHTML = '<p class="text-gray-500">Imagem carregada. Clique em Analisar.</p>';
+                textInput.value = ''; // Limpa o campo de texto
+            } catch (error) {
+                console.error("Erro ao processar o arquivo:", error);
+                errorMessage.textContent = 'Erro ao carregar a imagem.';
+                errorMessage.classList.remove('hidden');
+            }
+        } else {
+            imageOriginalPreview.style.display = 'none';
+            imageOriginalPreview.src = '';
+            editedImageObject.style.display = 'none';
+            if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
+            currentObjectUrl = null;
+
+            placeholderText.style.display = 'block';
+            base64Image = null;
+            mimeType = '';
+            resultArea.innerHTML = '<p>O resultado da análise aparecerá aqui.</p>';
+        }
+    }
+    
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    /**
+     * Função para simular a edição e gerar a imagem com o texto de avaliação.
+     * Usa html2canvas para capturar a pré-visualização "editada".
+     */
+    async function generateAndDownloadEditedImage() {
+        if (!editedImagePreviewContainer || editedImagePreviewContainer.style.display === 'none') {
+            alert("Nenhuma imagem editada para baixar. Faça uma análise primeiro com uma imagem.");
+            return;
+        }
+
+        generateButton.disabled = true;
+        const originalButtonText = generateButton.textContent;
+        generateButton.textContent = 'Gerando Imagem...';
+
+        try {
+            // Usa html2canvas para capturar o conteúdo do container de pré-visualização
+            const canvas = await html2canvas(editedImagePreviewContainer, {
+                allowTaint: true, // Permite imagens de outras origens (picsum, etc.)
+                useCORS: true,   // Ativa o CORS para imagens externas
+                scale: 2,         // Escala para melhor qualidade
+                logging: false    // Desativa logs no console
+            });
+
+            // Cria um link para download
+            const dataURL = canvas.toDataURL('image/png'); 
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = `${lastAnalysisTitle}_editado_ma_ai.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('Imagem editada baixada com sucesso! (Simulação)');
+
+        } catch (error) {
+            console.error("Erro ao gerar a imagem para download:", error);
+            alert("Erro ao baixar a imagem. Verifique o console para detalhes.");
+        } finally {
+            generateButton.textContent = originalButtonText;
+            generateButton.disabled = false;
+        }
+    }
+
+
+    async function analyzeContent() {
+        if (sessionStorage.getItem('isAuthenticated') !== 'true') { authModal.classList.remove('hidden'); return; }
+
+        const textQuery = textInput.value.trim();
+
+        if (!base64Image && !textQuery) {
+            resultArea.innerHTML = '<p class="text-yellow-400">Por favor, selecione uma imagem OU digite um texto/link para analisar.</p>';
+            return;
+        }
+
+        analyzeButton.disabled = true;
+        generateButton.classList.add('hidden');
+        loadingIndicator.classList.remove('hidden');
+        resultArea.innerHTML = '';
+        errorMessage.classList.add('hidden');
+        lastAnalysisText = ''; 
+        editedImagePreviewContainer.style.display = 'none'; // Esconde a prévia editada enquanto processa
+
+        // --- 1. CONFIGURAÇÃO DA INSTRUÇÃO E PROMPT PARA EDIÇÃO PROFISSIONAL ---
+        const systemInstruction = `Você é um avaliador e analista de IA M&A, especializado em livros, objetos e links.
+Sua resposta deve ser em Português do Brasil, concisa e estruturada em pontos.
+
+Para QUALQUER entrada (imagem, livro, link), forneça:
+1.  **Título/Objeto/Link**: Identificação principal do item.
+2.  **Páginas/Tópico Principal**: Número de páginas estimado (se livro) ou tópico principal (se link/objeto).
+3.  **Resumo Rápido**: 1-2 frases sobre a história/função/conteúdo.
+4.  **AVALIAÇÃO**: X/5 (use um número de 1 a 5).
+
+SE UMA IMAGEM FOR FORNECIDA, adicione um último ponto com o título **SUGESTÃO DE EDIÇÃO PROFISSIONAL:**.
+Neste ponto, descreva como a imagem carregada seria profissionalmente editada para um uso de marketing ou capa, mantendo o objeto/livro, mas criando um fundo novo, iluminacao adequada e corrigindo erros da imagem. Seja criativo e descritivo.
+Exemplo: "SUGESTÃO DE EDIÇÃO PROFISSIONAL: O livro seria isolado em um fundo abstrato com tons de azul e roxo, com luzes holográficas projetando-se sobre ele. Pequenas imperfeições da capa seriam corrigidas, e a iluminação destacaria a textura."`;
+        
+        let userPrompt = '';
+        const contents = [];
+
+        if (base64Image) {
+            userPrompt = `Analise esta imagem e forneça a avaliação e sugestão de edição profissional. ${textQuery ? 'O usuário forneceu o contexto adicional: ' + textQuery : ''}`;
+            contents.push({ role: "user", parts: [
+                { text: userPrompt },
+                { inlineData: { mimeType: mimeType, data: base64Image } }
+            ]});
+        } else if (textQuery) {
+            userPrompt = `Analise o seguinte texto/link e forneça a avaliação solicitada: "${textQuery}"`;
+            contents.push({ role: "user", parts: [{ text: userPrompt }] });
+        } else {
+            loadingIndicator.classList.add('hidden');
+            analyzeButton.disabled = false;
+            return; 
+        }
+
+        const payload = {
+            contents: contents,
+            tools: [{ "google_search": {} }], 
+            systemInstruction: {
+                parts: [{ text: systemInstruction }]
+            },
+        };
+        
+        const maxRetries = 3;
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const candidate = result.candidates?.[0];
+                const text = candidate?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    lastAnalysisText = text; // Armazena a resposta bruta da IA
+                    let processedText = text;
+
+                    // Extrai Título para o nome do arquivo de download
+                    const titleMatch = text.match(/\*\*Título\/Objeto\/Link\*\*\:\s*(.*?)\n/i);
+                    if (titleMatch) {
+                        lastAnalysisTitle = titleMatch[1].replace(/[^a-zA-Z0-9\s]/g, '').trim().replace(/\s+/g, '_');
+                    } else {
+                         lastAnalysisTitle = 'Imagem_Editada'; // Fallback
+                    }
+
+                    // 1. Processamento de Estrelas (busca por AVALIAÇÃO: X/5)
+                    const starRegex = /AVALIAÇÃO:\s*(\d)\/5/i;
+                    const match = text.match(starRegex);
+                    
+                    if (match) {
+                        const score = parseInt(match[1], 10);
+                        const fullStars = '★'.repeat(Math.min(5, Math.max(0, score)));
+                        const emptyStars = '☆'.repeat(5 - Math.min(5, Math.max(0, score)));
+                        const starRatingHtml = `<span class="star-rating"><span class="full-star">${fullStars}</span><span class="empty-star">${emptyStars}</span></span>`;
+
+                        processedText = text.replace(starRegex, `AVALIAÇÃO: ${starRatingHtml}`);
+                    }
+                    
+                    // 2. Formata a resposta da IA (Markdown básico para HTML)
+                    let formattedText = processedText
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
+                        .replace(/\n/g, '<br>');
+
+                    resultArea.innerHTML = formattedText;
+                    
+                    // Se uma imagem foi carregada, atualiza a prévia de edição
+                    if (base64Image) {
+                        updateEditedImagePreview();
+                        generateButton.classList.remove('hidden');
+                    } else {
+                        generateButton.classList.add('hidden'); // Não permite download se não for imagem
+                    }
+                    
+                    break; 
+
+                } else {
+                     throw new Error("Resposta da API vazia ou inválida.");
+                }
+
+            } catch (error) {
+                console.error(`Tentativa ${i + 1} falhou:`, error);
+                if (i === maxRetries - 1) {
+                    resultArea.innerHTML = 'Houve um erro inesperado. Verifique o console para detalhes.';
+                    errorMessage.classList.remove('hidden');
+                } else {
+                    const delay = Math.pow(2, i) * 1000;
+                    await sleep(delay);
+                }
+            } finally {
+                if (i === maxRetries - 1 || resultArea.innerHTML !== '') {
+                    loadingIndicator.classList.add('hidden');
+                    analyzeButton.disabled = false;
+                }
+            }
+        }
+    }
+
+    /**
+     * Atualiza a pré-visualização da imagem "editada" no container.
+     */
+    function updateEditedImagePreview() {
+        if (!base64Image) {
+            editedImagePreviewContainer.style.display = 'none';
+            return;
+        }
+
+        // Fundo aleatório para simular "novo fundo" e "iluminação"
+        editedImageBg.style.backgroundImage = `url('https://picsum.photos/seed/${Math.random()}/400/600')`;
+        editedImageBg.style.display = 'block';
+
+        editedImageObject.src = currentObjectUrl; // Objeto (livro/imagem original) centralizado
+        editedImageObject.style.display = 'block';
+
+        let title = "Item Analisado";
+        let summary = "Resumo indisponível.";
+        let scoreHtml = "";
+
+        const lines = lastAnalysisText.split('\n');
+        for (const line of lines) {
+            if (line.includes('Título/Objeto/Link')) {
+                // Simplifica o título para caber no overlay
+                title = line.split(':')[1].replace(/\*\*/g, '').trim().replace('de Gue Oliveira', '| Gue Oliveira');
+            }
+            if (line.includes('Resumo Rápido')) {
+                 // Remove '*' e ':' e trim
+                 summary = line.split(':')[1].trim().replace(/^\s*-\s*/, '').replace(/\*\*/g, '');
+            }
+            // Processamento de Estrelas (busca por AVALIAÇÃO: X/5)
+            const scoreMatch = line.match(/AVALIAÇÃO:\s*(\d)\/5/i);
+            if (scoreMatch) {
+                const score = parseInt(scoreMatch[1], 10);
+                const fullStars = '★'.repeat(Math.min(5, Math.max(0, score)));
+                const emptyStars = '☆'.repeat(5 - Math.min(5, Math.max(0, score)));
+                scoreHtml = `<span class="star-rating"><span class="full-star">${fullStars}</span><span class="empty-star">${emptyStars}</span></span>`;
+            }
+        }
+        
+        // Insere o conteúdo estruturado em HTML
+        editedImageTextContent.innerHTML = `
+            <div class="overlay-title">${title}</div>
+            <div class="overlay-summary">${summary}</div>
+            <div class="mt-1">${scoreHtml}</div>
+        `;
+
+
+        // Exibe o container da imagem "editada" e oculta o preview original
+        editedImagePreviewContainer.style.display = 'block';
+        imageOriginalPreview.style.display = 'none';
+        placeholderText.style.display = 'none';
+    }
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initAuth(); 
+        
+        textInput.addEventListener('input', () => {
+             if (textInput.value.trim() !== '') {
+                imageInput.value = '';
+                handleImageChange({ target: { files: [] } }); 
+             }
+        });
+    });
+
+</script>
+
 </body>
 </html>
